@@ -6,7 +6,9 @@
 #include <QFileDialog>
 #include <QFile>
 #include <QTextStream>
+#include <dialoginfo.h>
 #include <QDebug>
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -52,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->recordButton, &QPushButton::clicked, this, &MainWindow::recordButtonClicked);
     connect(ui->mergeButton, &QPushButton::clicked, this, &MainWindow::mergeButtonClicked);
     connect(ui->infoButton, &QPushButton::clicked, this, &MainWindow::infoButtonClicked);
+
     connect(recordProcess, &QProcess::started, this, &MainWindow::recordStarted);
     connect(recordProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::readyReadStandardOutput);
     connect(recordProcess, &QProcess::readyReadStandardError, this, &MainWindow::readyReadStandardError);
@@ -132,8 +135,6 @@ void MainWindow::mergeButtonClicked()
     QStringList nameList = videolist->request();
     QString videoName = videolist->getVideoName();
 
-
-
     QFile file("video.txt");
     if(file.exists())
        if(!file.remove())
@@ -166,7 +167,8 @@ void MainWindow::mergeButtonClicked()
 
 void MainWindow::infoButtonClicked()
 {
-    ;
+    DialogInfo *infoDlg = new DialogInfo(this);
+    infoDlg->exec();
 }
 
 void MainWindow::recordStarted()

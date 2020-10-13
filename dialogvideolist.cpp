@@ -6,6 +6,7 @@ DialogVideoList::DialogVideoList(const QStringList &availableVideos, QWidget *pa
     ui(new Ui::DialogVideoList)
 {
     ui->setupUi(this);
+    setWindowTitle(tr("Videolist"));
     setupListWidget(availableVideos);
 
     connect(ui->cancelButton, &QPushButton::clicked, this, &DialogVideoList::reject);

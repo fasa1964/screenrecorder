@@ -28,12 +28,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    dialogvideolist.cpp
+    dialogvideolist.cpp \
+    dialoginfo.cpp
 
 HEADERS += \
         mainwindow.h \
-    dialogvideolist.h
+    dialogvideolist.h \
+    dialoginfo.h
 
 FORMS += \
         mainwindow.ui \
-    dialogvideolist.ui
+    dialogvideolist.ui \
+    dialoginfo.ui

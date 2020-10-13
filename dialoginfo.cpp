@@ -6,6 +6,9 @@ DialogInfo::DialogInfo(QWidget *parent) :
     ui(new Ui::DialogInfo)
 {
     ui->setupUi(this);
+    setWindowTitle(tr("About FScreenRecorder"));
+
+    connect(ui->closeButton, &QPushButton::clicked, this, &DialogInfo::close);
 }
 
 DialogInfo::~DialogInfo()
