@@ -31,6 +31,7 @@ private slots:
     void closeButtonClicked();
     void recordButtonClicked();
     void mergeButtonClicked();
+    void infoButtonClicked();
     void recordStarted();
     void readyReadStandardOutput();
     void readyReadStandardError();

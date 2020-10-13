@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->ffmpegDirButton, &QPushButton::clicked, this, &MainWindow::ffmpegDirButtonClicked);
     connect(ui->recordButton, &QPushButton::clicked, this, &MainWindow::recordButtonClicked);
     connect(ui->mergeButton, &QPushButton::clicked, this, &MainWindow::mergeButtonClicked);
+    connect(ui->infoButton, &QPushButton::clicked, this, &MainWindow::infoButtonClicked);
     connect(recordProcess, &QProcess::started, this, &MainWindow::recordStarted);
     connect(recordProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::readyReadStandardOutput);
     connect(recordProcess, &QProcess::readyReadStandardError, this, &MainWindow::readyReadStandardError);
@@ -163,10 +164,16 @@ void MainWindow::mergeButtonClicked()
 
 }
 
+void MainWindow::infoButtonClicked()
+{
+    ;
+}
+
 void MainWindow::recordStarted()
 {
     ui->statusBar->showMessage("recording...");
     ui->recordButton->setText("&stop");
+    ui->recordButton->setShortcut(QKeySequence(tr("Ctrl+s")));
     ui->mergeButton->setEnabled(false);
 
     if(!merging)
@@ -194,6 +201,8 @@ void MainWindow::recordFinished(int /*exitCode*/, QProcess::ExitStatus status)
     if(status == 0){
         ui->statusBar->showMessage( "Process normaly exit" );
         ui->recordButton->setText("&record");
+        ui->recordButton->setShortcut(QKeySequence(tr("Ctrl+s")));
+
         nr++;
         if(nr > 2)
             ui->mergeButton->setEnabled(true);
