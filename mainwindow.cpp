@@ -114,20 +114,35 @@ void MainWindow::recordButtonClicked()
 
 void MainWindow::mergeButtonClicked()
 {
+    // Get available videos
     QDir dir = QDir::current();
     dir.setFilter(QDir::Files);
 
     QStringList filters;
     filters << "*." + ui->videoFormatBox->currentText();
     dir.setNameFilters(filters);
+    QStringList list =  dir.entryList();
+
+
+    videolist = new DialogVideoList(list, this);
+    if(videolist->exec() == QDialog::Rejected)
+        return;
+
+    QStringList nameList = videolist->request();
+    QString videoName = videolist->getVideoName();
+
+
 
     QFile file("video.txt");
+    if(file.exists())
+       if(!file.remove())
+           return;
+
     if(!file.open(QFileDevice::WriteOnly))
         return;
 
     QTextStream out(&file);
-    QStringList list =  dir.entryList();
-    foreach (QString s, list)
+    foreach (QString s, nameList)
     {
        out << "file" << " " << "'"<< s << "'" << "\n";
     }
@@ -137,7 +152,7 @@ void MainWindow::mergeButtonClicked()
     merging = true;
     QStringList argumentList;
     QString program = ui->ffmpegEdit->text();
-    QString output =  QString("output") + "." + ui->videoFormatBox->currentText();
+    QString output = videoName + "." + ui->videoFormatBox->currentText();
     argumentList << "-f" << "concat"
                  << "-i" << "video.txt"
                  << "-c" << "copy"
@@ -145,7 +160,6 @@ void MainWindow::mergeButtonClicked()
 
     recordProcess->setProcessChannelMode(QProcess::MergedChannels);
     recordProcess->start(program, argumentList);
-
 
 }
 
@@ -168,10 +182,6 @@ void MainWindow::recordStarted()
 void MainWindow::readyReadStandardOutput()
 {
     ui->processOutputText->append( recordProcess->readAllStandardOutput() );
-
-    QString data = ui->processOutputText->toPlainText();
-    qDebug() << data;
-
 }
 
 void MainWindow::readyReadStandardError()
@@ -241,6 +251,7 @@ void MainWindow::readSettings()
 
     QString pathRecord = settings.value("pathrecord", QDir::currentPath()).toString();
     ui->pathRecordEdit->setText( pathRecord );
+    QDir::setCurrent(pathRecord);
 }
 
 void MainWindow::saveSettings()
