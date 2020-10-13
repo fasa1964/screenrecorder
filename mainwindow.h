@@ -13,6 +13,8 @@
 #include <QProcess>
 #include <QSettings>
 
+#include <dialogvideolist.h>
+
 namespace Ui {
 class MainWindow;
 }
@@ -49,6 +51,7 @@ private:
     QTimer *recordTimer;
     bool merging;
 
+    DialogVideoList *videolist;
     void readSettings();
     void saveSettings();
 };
