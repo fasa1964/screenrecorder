@@ -40,3 +40,6 @@ FORMS += \
         mainwindow.ui \
     dialogvideolist.ui \
     dialoginfo.ui
+
+RESOURCES += \
+    images.qrc

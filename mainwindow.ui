@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>597</width>
-    <height>488</height>
+    <width>561</width>
+    <height>487</height>
    </rect>
   </property>
   <property name="font">
@@ -471,7 +471,11 @@ Less value better quality larger file</string>
      </widget>
     </item>
     <item row="11" column="1" rowspan="2" colspan="5">
-     <widget class="QTextBrowser" name="processOutputText"/>
+     <widget class="QTextBrowser" name="processOutputText">
+      <property name="toolTip">
+       <string>Shows the outputs from ffmpeg</string>
+      </property>
+     </widget>
     </item>
     <item row="12" column="0">
      <spacer name="verticalSpacer">

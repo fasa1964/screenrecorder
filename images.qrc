@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>FScreenRecorder.svg</file>
+    </qresource>
+</RCC>
