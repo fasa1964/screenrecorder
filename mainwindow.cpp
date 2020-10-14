@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle("FScreenRecord");
+    setWindowIcon(QIcon(QPixmap(":/FScreenRecorder.svg")));
     nr = 1;
     merging = false;
     readSettings();
@@ -35,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
     videoFormatList << "mkv" << "mp4";
     ui->videoFormatBox->addItems(videoFormatList);
 
-    // Duration time 10 min
+    // Duration time default value 10 min
     ui->timeEdit->setTime(QTime(0,10,0));
 
     //audio devices

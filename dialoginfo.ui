@@ -158,7 +158,7 @@
     <item row="0" column="0">
      <widget class="QLabel" name="label_2">
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#00007f;&quot;&gt;This application is for recording the screen, and it also merge video clips together in one video.&lt;br/&gt;Importent: To use FScreenRecorder you have to install ffmgeg. To capture and concat videos it's using ffmpeg in the commands terminal. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#00007f;&quot;&gt;FScreenRecorder stands under the &lt;/span&gt;&lt;a href=&quot;https://www.gnu.org/licenses/gpl-3.0.en.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;GNU LPG v. 3 License&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#00007f;&quot;&gt;This application is for recording the screen and it also merge video clips together in one video.&lt;br/&gt;Importent: To use FScreenRecorder you have to install ffmgeg. To capture and concat videos it's using ffmpeg in the commands terminal. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#00007f;&quot;&gt;FScreenRecorder stands under the &lt;/span&gt;&lt;a href=&quot;https://www.gnu.org/licenses/gpl-3.0.en.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;GNU LPG v. 3 License&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;span style=&quot; color:#00007f;&quot;&gt;It is developed by Farschad Saberi with C++ in Qt.&lt;br&gt;You can download the sourcecoode from &lt;a href=&quot;https://github.com/fasa1964/screenrecorder&quot;&gt;GitHub&lt;/a&gt;&lt;/span&gt; &lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="wordWrap">
@@ -188,6 +188,59 @@
    </property>
    <property name="scaledContents">
     <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelVersion">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>40</y>
+     <width>171</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="palette">
+    <palette>
+     <active>
+      <colorrole role="WindowText">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>0</red>
+         <green>85</green>
+         <blue>127</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </active>
+     <inactive>
+      <colorrole role="WindowText">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>0</red>
+         <green>85</green>
+         <blue>127</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </inactive>
+     <disabled>
+      <colorrole role="WindowText">
+       <brush brushstyle="SolidPattern">
+        <color alpha="255">
+         <red>120</red>
+         <green>120</green>
+         <blue>120</blue>
+        </color>
+       </brush>
+      </colorrole>
+     </disabled>
+    </palette>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
  </widget>

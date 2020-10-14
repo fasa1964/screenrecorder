@@ -9,6 +9,7 @@ DialogInfo::DialogInfo(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle(tr("About FScreenRecorder"));
+    ui->labelVersion->setText("Version "+qApp->applicationVersion());
 
     connect(ui->closeButton, &QPushButton::clicked, this, &DialogInfo::close);
     connect(ui->qtButton, &QPushButton::clicked, this, &DialogInfo::qtButtonClicked);
