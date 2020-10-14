@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>FScreenRecorder.svg</file>
+        <file>FScreenRecorder64.ico</file>
+        <file>FScreenRecorder128.ico</file>
+        <file>FScreenRecorder512.ico</file>
     </qresource>
 </RCC>
