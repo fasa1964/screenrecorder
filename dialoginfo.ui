@@ -6,14 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>533</width>
-    <height>322</height>
+    <width>535</width>
+    <height>340</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>535</width>
+    <height>340</height>
+   </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>533</width>
-    <height>322</height>
+    <width>535</width>
+    <height>340</height>
    </size>
   </property>
   <property name="font">
@@ -139,7 +145,7 @@
    <property name="maximumSize">
     <size>
      <width>16777215</width>
-     <height>400</height>
+     <height>428</height>
     </size>
    </property>
    <property name="frameShape">
@@ -148,7 +154,19 @@
    <property name="frameShadow">
     <enum>QFrame::Plain</enum>
    </property>
-   <layout class="QGridLayout" name="gridLayout"/>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#00007f;&quot;&gt;This application is for recording the screen, and it also merge video clips together in one video.&lt;br/&gt;Importent: To use FScreenRecorder you have to install ffmgeg. To capture and concat videos it's using ffmpeg in the commands terminal. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; color:#00007f;&quot;&gt;FScreenRecorder stands under the &lt;/span&gt;&lt;a href=&quot;https://www.gnu.org/licenses/gpl-3.0.en.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;GNU LPG v. 3 License&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span style=&quot; color:#00007f;&quot;&gt;It is developed by Farschad Saberi with C++ in Qt.&lt;br&gt;You can download the sourcecoode from &lt;a href=&quot;https://github.com/fasa1964/screenrecorder&quot;&gt;GitHub&lt;/a&gt;&lt;/span&gt; &lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>
