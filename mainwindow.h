@@ -47,7 +47,7 @@ private:
     Ui::MainWindow *ui;
 
     QProcess *recordProcess;
-    int nr;
+
 
     QTimer *recordTimer;
     bool merging;

@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     setWindowTitle("FScreenRecord");
     setWindowIcon(QIcon(QPixmap(":/FScreenRecorder.svg")));
-    nr = 1;
+
     merging = false;
     readSettings();
     ui->recordButton->setToolTip("Start to record [Ctrl+r]" );
@@ -41,7 +41,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //audio devices
     int index = 0;
-    foreach (QAudioDeviceInfo device, QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
+    foreach (QAudioDeviceInfo device, QAudioDeviceInfo::availableDevices(QAudio::AudioInput))
+    {
           ui->audioDeviceBox->insertItem(index, device.deviceName());
           index++;
     }
@@ -90,8 +91,8 @@ void MainWindow::recordButtonClicked()
     }
 
     QStringList argumentList;
-    QString program = ui->ffmpegEdit->text();    //"d:/ffmpeg/bin/ffmpeg.exe";
-    QString nrs = QString("%1%2").arg(QString::number(nr,10),2,'0').arg(ui->outputEdit->text());
+    QString program = ui->ffmpegEdit->text();
+    QString nrs = QString("%1%2").arg(QString::number(ui->nrBox->value(),10),2,'0').arg(ui->outputEdit->text());
     QString output =  nrs + "." + ui->videoFormatBox->currentText();
     QString audioDevice = ui->audioDeviceBox->currentText();
     QString videoDevice = ui->videoDeviceBox->currentText();
@@ -127,6 +128,7 @@ void MainWindow::mergeButtonClicked()
     QStringList filters;
     filters << "*." + ui->videoFormatBox->currentText();
     dir.setNameFilters(filters);
+    dir.setSorting(QDir::Time);
     QStringList list =  dir.entryList();
 
 
@@ -203,15 +205,13 @@ void MainWindow::readyReadStandardError()
 
 void MainWindow::recordFinished(int /*exitCode*/, QProcess::ExitStatus status)
 {
-    if(status == 0){
+    if(status == 0)
+    {
         ui->statusBar->showMessage( "Process normaly exit" );
         ui->recordButton->setText("&record");
         ui->recordButton->setShortcut(QKeySequence(tr("Ctrl+r")));
         ui->recordButton->setToolTip("Start to record [Ctrl+r]" );
-
-        nr++;
-        if(nr > 2)
-            ui->mergeButton->setEnabled(true);
+        ui->mergeButton->setEnabled(true);
     }else
         ui->statusBar->showMessage( "Process exit by crashed" );
 
