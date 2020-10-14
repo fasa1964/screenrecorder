@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     nr = 1;
     merging = false;
     readSettings();
+    ui->recordButton->setToolTip("Start to record [Ctrl+r]" );
 
     // Timer for record duration
     recordTimer = new QTimer(this);
@@ -176,6 +177,8 @@ void MainWindow::recordStarted()
     ui->statusBar->showMessage("recording...");
     ui->recordButton->setText("&stop");
     ui->recordButton->setShortcut(QKeySequence(tr("Ctrl+s")));
+    ui->recordButton->setToolTip("Stop recording [Ctrl+s]" );
+
     ui->mergeButton->setEnabled(false);
 
     if(!merging)
@@ -185,7 +188,6 @@ void MainWindow::recordStarted()
         recordTimer->start();
         connect(recordTimer, &QTimer::timeout, this, &MainWindow::timout );
     }
-
 }
 
 void MainWindow::readyReadStandardOutput()
@@ -203,7 +205,8 @@ void MainWindow::recordFinished(int /*exitCode*/, QProcess::ExitStatus status)
     if(status == 0){
         ui->statusBar->showMessage( "Process normaly exit" );
         ui->recordButton->setText("&record");
-        ui->recordButton->setShortcut(QKeySequence(tr("Ctrl+s")));
+        ui->recordButton->setShortcut(QKeySequence(tr("Ctrl+r")));
+        ui->recordButton->setToolTip("Start to record [Ctrl+r]" );
 
         nr++;
         if(nr > 2)
