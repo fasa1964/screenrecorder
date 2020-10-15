@@ -13,6 +13,10 @@
 #include <QProcess>
 #include <QSettings>
 
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+
 #include <dialogvideolist.h>
 
 namespace Ui {
@@ -42,6 +46,9 @@ private slots:
 
     void dirButtonClicked();
     void ffmpegDirButtonClicked();
+
+    void checkUpdate();
+    void replyFinished(QNetworkReply *reply);
 
 private:
     Ui::MainWindow *ui;

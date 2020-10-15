@@ -52,6 +52,9 @@
      <height>30</height>
     </rect>
    </property>
+   <property name="toolTip">
+    <string>Check for updates</string>
+   </property>
    <property name="text">
     <string>&amp;update</string>
    </property>

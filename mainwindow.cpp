@@ -6,6 +6,8 @@
 #include <QFileDialog>
 #include <QFile>
 #include <QTextStream>
+#include <QSslConfiguration>
+
 #include <dialoginfo.h>
 #include <QDebug>
 
@@ -172,7 +174,9 @@ void MainWindow::mergeButtonClicked()
 void MainWindow::infoButtonClicked()
 {
     DialogInfo *infoDlg = new DialogInfo(this);
+    connect(infoDlg, &DialogInfo::checkForUpdate, this, &MainWindow::checkUpdate);
     infoDlg->exec();
+
 }
 
 void MainWindow::recordStarted()
@@ -255,6 +259,39 @@ void MainWindow::ffmpegDirButtonClicked()
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
                                     "/home", "*.*");
     ui->ffmpegEdit->setText( fileName );
+}
+
+void MainWindow::checkUpdate()
+{
+    ui->statusBar->showMessage("check for updates...",5000);
+
+    QNetworkRequest request;
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    QSslConfiguration config = QSslConfiguration::defaultConfiguration();
+    config.setProtocol(QSsl::SecureProtocols);
+    request.setSslConfiguration(config);
+
+    request.setUrl(QUrl("https://github.com/fasa1964/screenrecorder"));
+
+    request.setHeader(QNetworkRequest::UserAgentHeader, "main.cpp");
+    manager->get(request);
+    connect(manager, &QNetworkAccessManager::finished /*SIGNAL(finished(QNetworkReply*))*/, this,  &MainWindow::replyFinished/*SLOT(replyFinished(QNetworkReply*))*/);
+}
+
+void MainWindow::replyFinished(QNetworkReply *reply)
+{
+    qDebug() << reply->error();
+    if(reply->error() == QNetworkReply::NoError)
+    {
+            //process json reply
+            QString strReply = (QString)reply->readAll();
+            qDebug() << strReply;
+    }
+    else
+    {
+        qDebug() << "ERROR";
+    }
+    reply->deleteLater();
 }
 
 void MainWindow::readSettings()

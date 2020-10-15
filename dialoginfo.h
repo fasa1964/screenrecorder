@@ -15,8 +15,12 @@ public:
     explicit DialogInfo(QWidget *parent = 0);
     ~DialogInfo();
 
+signals:
+    void checkForUpdate();
+
 private slots:
     void qtButtonClicked();
+    void updateButtonClicked();
 
 private:
     Ui::DialogInfo *ui;
