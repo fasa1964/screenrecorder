@@ -55,7 +55,6 @@ private:
 
     QProcess *recordProcess;
 
-
     QTimer *recordTimer;
     bool merging;
 

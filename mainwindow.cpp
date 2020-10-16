@@ -97,7 +97,7 @@ void MainWindow::recordButtonClicked()
     QString nrs = QString("%1%2").arg(QString::number(ui->nrBox->value(),10),2,'0').arg(ui->outputEdit->text());
     QString output =  nrs + "." + ui->videoFormatBox->currentText();
     QString audioDevice = ui->audioDeviceBox->currentText();
-    QString videoDevice = ui->videoDeviceBox->currentText();
+    QString videoDevice = "Standard"; //ui->videoDeviceBox->currentText();
     QString crf = QString::number(ui->crfBox->value(),10);
     QString fps = QString::number(ui->fpsBox->value(),10);
     argumentList << "-rtbufsize" << "1500M"
