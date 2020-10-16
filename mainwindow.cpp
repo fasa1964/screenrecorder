@@ -130,7 +130,8 @@ void MainWindow::mergeButtonClicked()
     QStringList filters;
     filters << "*." + ui->videoFormatBox->currentText();
     dir.setNameFilters(filters);
-    dir.setSorting(QDir::Time);
+    dir.setSorting(QDir::Time | QDir::Reversed );
+
     QStringList list =  dir.entryList();
 
 
@@ -265,33 +266,33 @@ void MainWindow::checkUpdate()
 {
     ui->statusBar->showMessage("check for updates...",5000);
 
-    QNetworkRequest request;
-    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-    QSslConfiguration config = QSslConfiguration::defaultConfiguration();
-    config.setProtocol(QSsl::SecureProtocols);
-    request.setSslConfiguration(config);
+//    QNetworkRequest request;
+//    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+//    QSslConfiguration config = QSslConfiguration::defaultConfiguration();
+//    config.setProtocol(QSsl::SecureProtocols);
+//    request.setSslConfiguration(config);
 
-    request.setUrl(QUrl("https://github.com/fasa1964/screenrecorder"));
+//    request.setUrl(QUrl("https://github.com/fasa1964/screenrecorder"));
 
-    request.setHeader(QNetworkRequest::UserAgentHeader, "main.cpp");
-    manager->get(request);
-    connect(manager, &QNetworkAccessManager::finished /*SIGNAL(finished(QNetworkReply*))*/, this,  &MainWindow::replyFinished/*SLOT(replyFinished(QNetworkReply*))*/);
+//    request.setHeader(QNetworkRequest::LastModifiedHeader, "screenrecorder");
+//    manager->get(request);
+//    connect(manager, &QNetworkAccessManager::finished, this,  &MainWindow::replyFinished);
 }
 
 void MainWindow::replyFinished(QNetworkReply *reply)
 {
-    qDebug() << reply->error();
-    if(reply->error() == QNetworkReply::NoError)
-    {
-            //process json reply
-            QString strReply = (QString)reply->readAll();
-            qDebug() << strReply;
-    }
-    else
-    {
-        qDebug() << "ERROR";
-    }
-    reply->deleteLater();
+//    qDebug() << reply->error();
+//    if(reply->error() == QNetworkReply::NoError)
+//    {
+//            //process json reply
+//            QString strReply = (QString)reply->readAll();
+//            qDebug() << strReply;
+//    }
+//    else
+//    {
+//        qDebug() << "ERROR";
+//    }
+//    reply->deleteLater();
 }
 
 void MainWindow::readSettings()
