@@ -8,6 +8,8 @@
         <file>FScreenRecorder128.png</file>
         <file>FScreenRecorder256.png</file>
         <file>FScreenRecorder512.png</file>
+        <file>start.ico</file>
+        <file>record.ico</file>
         <file>FScreenRecorder.ico</file>
     </qresource>
 </RCC>
