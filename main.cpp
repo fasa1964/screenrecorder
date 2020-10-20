@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 
     app.setApplicationName("FScreenRecorder");
     app.setApplicationVersion("1.0");
-    app.setWindowIcon(QIcon(QPixmap(":/FScreenRecorder.svg")));
+    app.setWindowIcon(QIcon(":/FScreenRecorder.ico"));
 
     MainWindow w;
     w.show();

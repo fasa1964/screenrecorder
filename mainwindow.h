@@ -12,10 +12,17 @@
 #include <QThread>
 #include <QProcess>
 #include <QSettings>
+#include <QFocusEvent>
+#include <QResizeEvent>
+#include <QWindowStateChangeEvent>
 
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QEvent>
+#include <QWinTaskbarProgress>
+#include <QWinTaskbarButton>
+
 
 #include <dialogvideolist.h>
 
@@ -31,34 +38,52 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+protected:
+//    virtual bool eventFilter(QObject *obj, QEvent *event) override;
+    virtual void showEvent(QShowEvent *event);
+
+
 private slots:
     void closeButtonClicked();
     void recordButtonClicked();
-    void mergeButtonClicked();
     void infoButtonClicked();
-    void recordStarted();
+    void mergeButtonClicked();
+
+    void ffmpegPathButtonClicked();
+    void outputPathButtonClicked();
+
+    // SIGNALS from QTimer
+    void timeout();
+
+    // SIGNALS for ffmpeg
     void readyReadStandardOutput();
-    void readyReadStandardError();
-    void recordFinished(int exitCode, QProcess::ExitStatus status);
-    void processStateChanged(QProcess::ProcessState);
+    void recordProcessStateChanged(QProcess::ProcessState status);
+    void processFinished(int exitCode, QProcess::ExitStatus status);
 
-    void timout();
-
-    void dirButtonClicked();
-    void ffmpegDirButtonClicked();
-
-    void checkUpdate();
-    void replyFinished(QNetworkReply *reply);
 
 private:
     Ui::MainWindow *ui;
 
+    // Process for ffmpeg
     QProcess *recordProcess;
 
+    // Take care of record time
+    // ffmpeg stop recording video by -t duration
+    // but audio keeps recording
     QTimer *recordTimer;
-    bool merging;
+    QTime startTime;        // start time when recording
+    int elapsedSeconds;     // elapsed seconds since recording
+    int durationSeconds;    // record time in seconds
+    bool merging;           // status for merging recorded videos
 
-    DialogVideoList *videolist;
+
+    // When recording an application
+    // is minimized show button and progress for record time
+    QWinTaskbarButton *taskbarButton;
+    QWinTaskbarProgress *taskbarProgress;
+
+    QString getText(const QString &sourceText, const QString &fromText, const QChar &tilChar);
+    bool checkPath();
     void readSettings();
     void saveSettings();
 };

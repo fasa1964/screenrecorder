@@ -6,7 +6,7 @@
 #include <QFileDialog>
 #include <QFile>
 #include <QTextStream>
-#include <QSslConfiguration>
+#include <QMessageBox>
 
 #include <dialoginfo.h>
 #include <QDebug>
@@ -17,95 +17,114 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    setWindowTitle("FScreenRecord");
-    setWindowIcon(QIcon(QPixmap(":/FScreenRecorder.svg")));
 
-    merging = false;
+    setWindowTitle("FScreenRecord");
+    setWindowIcon(QIcon(":/FScreenRecorder.ico"));
+
     readSettings();
-    ui->recordButton->setToolTip("Start to record [Ctrl+r]" );
+
+    durationSeconds = 0;
+    elapsedSeconds = 0;
+    merging = false;
 
     // Timer for record duration
     recordTimer = new QTimer(this);
 
     // Process for ffmpeg
     recordProcess = new QProcess(this);
+    recordProcess->setProcessChannelMode(QProcess::MergedChannels);
 
+    // connect process signals
+    connect(recordProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::readyReadStandardOutput);
+    connect(recordProcess, &QProcess::stateChanged , this, &MainWindow::recordProcessStateChanged);
+    connect(recordProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+         [=](int exitCode, QProcess::ExitStatus exitStatus){ processFinished(exitCode, exitStatus); });
 
-    // Default settings
-    //-----------------
-    // Videoformat
-    QStringList videoFormatList;
-    videoFormatList << "mkv" << "mp4";
-    ui->videoFormatBox->addItems(videoFormatList);
-
-    // Duration time default value 10 min
-    ui->timeEdit->setTime(QTime(0,10,0));
-
-    //audio devices
-    int index = 0;
-    foreach (QAudioDeviceInfo device, QAudioDeviceInfo::availableDevices(QAudio::AudioInput))
-    {
-          ui->audioDeviceBox->insertItem(index, device.deviceName());
-          index++;
-    }
-
-    // video device
-    ui->videoDeviceBox->addItems(QStringList() << "desktop" );
-
-
+    // connect application signals
     connect(ui->closeButton, &QPushButton::clicked, this, &MainWindow::closeButtonClicked);
-    connect(ui->dirButton, &QPushButton::clicked, this, &MainWindow::dirButtonClicked);
-    connect(ui->ffmpegDirButton, &QPushButton::clicked, this, &MainWindow::ffmpegDirButtonClicked);
     connect(ui->recordButton, &QPushButton::clicked, this, &MainWindow::recordButtonClicked);
     connect(ui->mergeButton, &QPushButton::clicked, this, &MainWindow::mergeButtonClicked);
     connect(ui->infoButton, &QPushButton::clicked, this, &MainWindow::infoButtonClicked);
 
-    connect(recordProcess, &QProcess::started, this, &MainWindow::recordStarted);
-    connect(recordProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::readyReadStandardOutput);
-    connect(recordProcess, &QProcess::readyReadStandardError, this, &MainWindow::readyReadStandardError);
-    connect(recordProcess, &QProcess::stateChanged, this, &MainWindow::processStateChanged);
-    connect(recordProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-         [=](int exitCode, QProcess::ExitStatus exitStatus){ recordFinished(exitCode, exitStatus); });
+    connect(ui->outputPathButton, &QPushButton::clicked, this, &MainWindow::outputPathButtonClicked);
+    connect(ui->ffmpegPathButton, &QPushButton::clicked, this, &MainWindow::ffmpegPathButtonClicked);
+
+    // connect record timer
+    connect(recordTimer, &QTimer::timeout, this, &MainWindow::timeout );
+
+//    connect(recordProcess, &QProcess::started, this, &MainWindow::recordStarted);
+//    connect(recordProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+//         [=](int exitCode, QProcess::ExitStatus exitStatus){ recordFinished(exitCode, exitStatus); });
+
+
+//    installEventFilter(this);
+
+    taskbarButton = new QWinTaskbarButton(this);
+    taskbarButton->setOverlayIcon(QIcon(":/start.ico"));
+    taskbarProgress = taskbarButton->progress();
+    taskbarProgress->setVisible(true);
 
 }
 
 MainWindow::~MainWindow()
 {
-    if(recordTimer != nullptr)
-        recordTimer->deleteLater();
     delete ui;
 }
 
 void MainWindow::closeButtonClicked()
 {
+    if(recordProcess->state() == QProcess::Running){
+        QMessageBox::information(this, tr("Process"), tr("Process is still running.\n"
+        "Please, stop recording before closing this application!"));
+        return;
+    }
+
     if(recordProcess->state() == QProcess::Running)
-        recordProcess->terminate();
+        recordProcess->kill();
+
+    if(recordTimer != nullptr)
+        recordTimer->deleteLater();
+
     saveSettings();
     close();
 }
 
+/// !brief Start recording
 void MainWindow::recordButtonClicked()
 {
-    if(recordProcess->state() == QProcess::Running )
-    {
-        recordProcess->write("q");
+    if(recordProcess->state() == QProcess::Running){
+        recordProcess->write("q\n");
         return;
     }
 
+    if(!checkPath())
+        return;
+
+    // Clear output text
+    ui->processOutputText->clear();
+
+
+    // Define the programm with path
+    QString programm = ui->ffmpegPathEdit->text();
     QStringList argumentList;
-    QString program = ui->ffmpegEdit->text();
+
+    // videoname = nr + videoname
     QString nrs = QString("%1%2").arg(QString::number(ui->nrBox->value(),10),2,'0').arg(ui->outputEdit->text());
     QString output =  nrs + "." + ui->videoFormatBox->currentText();
-    QString audioDevice = ui->audioDeviceBox->currentText();
-    QString videoDevice = "Standard"; //ui->videoDeviceBox->currentText();
-    QString crf = QString::number(ui->crfBox->value(),10);
-    QString fps = QString::number(ui->fpsBox->value(),10);
+
+    QString audioDevice = ui->audioDeviceBox->currentText();    // input audio device
+    QString videoDevice = ui->videoDeviceBox->currentText();    // only desktop available
+    QString crf = QString::number(ui->crfBox->value(),10);      // quality of video
+    QString fps = QString::number(ui->fpsBox->value(),10);      // framerate of video
+    QString seconds =  QString::number( QTime(0,0,0).secsTo(ui->timeEdit->time()),10); // record duration in sec
+    durationSeconds = QTime(0,0,0).secsTo(ui->timeEdit->time());
+//    argumentList << "-vers";
     argumentList << "-rtbufsize" << "1500M"
                  << "-f" << "dshow"
                  << "-i" << "audio=" + audioDevice
                  << "-f" << "-y" << "-rtbufsize" << "100M"
                  << "-f" << "gdigrab"
-                 << "-t" << ui->timeEdit->time().toString("hh:mm:ss") // "00:10:00" default
+                 << "-t" << seconds
                  << "-framerate" << fps
                  << "-probesize" << "10M"
                  << "-draw_mouse" << "1"
@@ -116,9 +135,15 @@ void MainWindow::recordButtonClicked()
                  << "-crf" << crf << "-pix_fmt" << "yuv420p"
                  << output;
 
-    recordProcess->setProcessChannelMode(QProcess::MergedChannels);
-    recordProcess->start(program, argumentList);
+    recordProcess->start(programm, argumentList);
 
+}
+
+void MainWindow::infoButtonClicked()
+{
+    DialogInfo *infoDlg = new DialogInfo(this);
+    //connect(infoDlg, &DialogInfo::checkForUpdate, this, &MainWindow::checkUpdate);
+    infoDlg->exec();
 }
 
 void MainWindow::mergeButtonClicked()
@@ -134,13 +159,12 @@ void MainWindow::mergeButtonClicked()
 
     QStringList list =  dir.entryList();
 
-
-    videolist = new DialogVideoList(list, this);
-    if(videolist->exec() == QDialog::Rejected)
+    DialogVideoList *videoDlg = new DialogVideoList(list, this);
+    if(videoDlg->exec() == QDialog::Rejected)
         return;
 
-    QStringList nameList = videolist->request();
-    QString videoName = videolist->getVideoName();
+    QStringList videoList = videoDlg->request();
+    QString videoName = videoDlg->getVideoName();
 
     QFile file("video.txt");
     if(file.exists())
@@ -151,7 +175,7 @@ void MainWindow::mergeButtonClicked()
         return;
 
     QTextStream out(&file);
-    foreach (QString s, nameList)
+    foreach (QString s, videoList)
     {
        out << "file" << " " << "'"<< s << "'" << "\n";
     }
@@ -160,7 +184,7 @@ void MainWindow::mergeButtonClicked()
 
     merging = true;
     QStringList argumentList;
-    QString program = ui->ffmpegEdit->text();
+    QString program = ui->ffmpegPathEdit->text();
     QString output = videoName + "." + ui->videoFormatBox->currentText();
     argumentList << "-f" << "concat"
                  << "-i" << "video.txt"
@@ -172,146 +196,289 @@ void MainWindow::mergeButtonClicked()
 
 }
 
-void MainWindow::infoButtonClicked()
+/// !brief Get ffmpeg installed path including exe/bin
+void MainWindow::ffmpegPathButtonClicked()
 {
-    DialogInfo *infoDlg = new DialogInfo(this);
-    connect(infoDlg, &DialogInfo::checkForUpdate, this, &MainWindow::checkUpdate);
-    infoDlg->exec();
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
+                                    "/home", "*.*");
+    ui->ffmpegPathEdit->setText( fileName );
+}
+
+/// !brief Get output path
+void MainWindow::outputPathButtonClicked()
+{
+    QString outputpath = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                          "/home", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+
+    ui->outputPathEdit->setText( outputpath );
+
+    // Set application working directorie
+    QDir::setCurrent( outputpath );
+}
+
+/// !brief Slot form recordTimer
+/// reached every seconds
+void MainWindow::timeout()
+{
+    elapsedSeconds++;
+    if( elapsedSeconds > durationSeconds && !merging){
+        if(recordProcess->state() == QProcess::Running)
+            recordProcess->write("q\n");
+    }
+
+    taskbarProgress->setValue(elapsedSeconds);
 
 }
 
-void MainWindow::recordStarted()
+/// !brief Get the standard output information
+/// specialy during recording
+void MainWindow::readyReadStandardOutput()
 {
-    ui->statusBar->showMessage("recording...");
-    ui->recordButton->setText("&stop");
-    ui->recordButton->setShortcut(QKeySequence(tr("Ctrl+s")));
-    ui->recordButton->setToolTip("Stop recording [Ctrl+s]" );
+    QByteArray outputArray = recordProcess->readAllStandardOutput();
+    QList<QByteArray> outputList = outputArray.split('\n');
+    foreach (QString s, outputList) {
 
-    ui->mergeButton->setEnabled(false);
+        // Error has detected
+        if(s.contains("Error") || s.contains("error")){
+            ui->processOutputText->append( s );
+            QMessageBox::warning(this, tr("Error"), tr("FFMPEG failed because:\n")+s);
+            return;
+        }
 
-    if(!merging)
-    {
-        int msec = QTime(0,0,0).msecsTo( ui->timeEdit->time() );
-        recordTimer->setInterval( msec );
-        recordTimer->start();
-        connect(recordTimer, &QTimer::timeout, this, &MainWindow::timout );
+        // When recording
+        if(s.contains("time=") || s.contains("fps=")){
+            ui->processOutputText->append( s );
+            QString textTime = getText(s, "time=", ' ');
+            QString elapsed = "[" + QString::number(elapsedSeconds,10) + "]";
+            ui->statusBar->showMessage("recording: "+textTime+":"+elapsed);
+
+        }
+
+        if(s.contains("Overwrite?") || s.contains("[y/N]")){
+
+            if(recordTimer->isActive()){
+                recordTimer->stop();
+                taskbarProgress->setPaused(true);
+            }
+
+            int result = QMessageBox::question(this, tr("Question"), s,
+                         QMessageBox::Yes, QMessageBox::No);
+
+            if(result == QMessageBox::Yes){
+                recordProcess->write("y\n");
+                recordTimer->start(1000);
+                taskbarProgress->setPaused(false);
+            }
+
+            // User abort recording
+            if(result == QMessageBox::No){
+                recordProcess->write("N\n");
+                taskbarProgress->stop();
+            }
+
+        }
     }
 }
 
-void MainWindow::readyReadStandardOutput()
+
+/// !brief Get the state of record process
+void MainWindow::recordProcessStateChanged(QProcess::ProcessState status)
 {
-    ui->processOutputText->append( recordProcess->readAllStandardOutput() );
+    if(status == QProcess::Running){
+        ui->statusBar->showMessage("Process is running!");
+        ui->recordButton->setText("stop");
+        ui->recordButton->setToolTip("Click for stop recording.\nShortcut [Ctrl+p]");
+        ui->recordButton->setShortcut(QKeySequence("Ctrl+p"));
+        ui->recordButton->setIcon(QIcon(":/record.ico"));
+
+        taskbarButton->setOverlayIcon(QIcon(":/record.ico"));
+    }
+
+    if(status == QProcess::Starting){
+        elapsedSeconds = 0;
+        recordTimer->start(1000);
+        taskbarProgress->setRange(elapsedSeconds, durationSeconds);
+
+        // Minimize window
+        if(ui->minimizedBox->isChecked() && windowState() != Qt::WindowMinimized && !merging)
+            setWindowState(Qt::WindowMinimized);
+    }
+
+    if(status == QProcess::NotRunning){
+        ui->statusBar->showMessage("Process not running!");
+        ui->recordButton->setText("record");
+        ui->recordButton->setToolTip("Click for starting recording.\nShortcut [Ctrl+s]");
+        ui->recordButton->setShortcut(QKeySequence("Ctrl+s"));
+        ui->recordButton->setIcon(QIcon(":/start.ico"));
+
+        taskbarButton->setOverlayIcon(QIcon(":/start.ico"));
+
+    }
+
 }
 
-void MainWindow::readyReadStandardError()
+void MainWindow::processFinished(int exitCode, QProcess::ExitStatus status)
 {
-   ui->statusBar->showMessage( recordProcess->errorString() );
-}
+    if(exitCode == 0 && status == QProcess::NormalExit){
+        ui->statusBar->showMessage("Process successful finished!");
 
-void MainWindow::recordFinished(int /*exitCode*/, QProcess::ExitStatus status)
-{
-    if(status == 0)
-    {
-        ui->statusBar->showMessage( "Process normaly exit" );
-        ui->recordButton->setText("&record");
-        ui->recordButton->setShortcut(QKeySequence(tr("Ctrl+r")));
-        ui->recordButton->setToolTip("Start to record [Ctrl+r]" );
-        ui->mergeButton->setEnabled(true);
-    }else
-        ui->statusBar->showMessage( "Process exit by crashed" );
+        if(recordTimer->isActive())
+            recordTimer->stop();
+
+        taskbarButton->setOverlayIcon(QIcon(":/start.ico"));
+        taskbarProgress->reset();
+
+
+        if(windowState() == Qt::WindowMinimized)
+            setWindowState(Qt::WindowActive);
+
+    }
+
+    if(exitCode == 1 && status == QProcess::CrashExit){
+        QMessageBox::warning(this, tr("Error"), tr("Process error occured:\n")+recordProcess->errorString());
+        return;
+    }
 
     merging = false;
 }
 
-void MainWindow::processStateChanged(QProcess::ProcessState /*state*/)
+QString MainWindow::getText(const QString &sourceText, const QString &fromText, const QChar &tilChar)
 {
-    if(recordProcess->state() == QProcess::NotRunning)
-        ui->statusBar->showMessage( "process is not running." );
+    QString text;
 
-    if(recordProcess->state() == QProcess::Starting)
-        ui->statusBar->showMessage( "process is starting." );
+    if(!sourceText.contains(fromText))
+        return text;
+    if(!sourceText.contains(tilChar))
+        return text;
 
-    if(recordProcess->state() == QProcess::Running)
-        ui->statusBar->showMessage( "process is running." );
-}
+    int index = sourceText.indexOf(fromText);
+    index += fromText.size();
 
-void MainWindow::timout()
-{
-    if(recordProcess->state() == QProcess::Running )
-    {
-        recordTimer->stop();
-        recordProcess->write("q");
-        disconnect(recordTimer, &QTimer::timeout, this, &MainWindow::timout );
+    for(int i = index; i < sourceText.size(); i++){
+        if(sourceText.at(i) == tilChar)
+            break;
+        text.append( sourceText.at(i) );
     }
+
+
+    return text;
 }
 
-void MainWindow::dirButtonClicked()
+/// !brief Check output path and path of ffmpeg
+bool MainWindow::checkPath()
 {
-    QString currentPath = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                          "/home", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    if(ui->outputPathEdit->text().isEmpty()){
+        QMessageBox::information(this, tr("Output path"), tr("Please, set the output path, in settings tab!"));
+        return false;
+    }
+
+    QFile file(ui->ffmpegPathEdit->text());
+    if(!file.exists()){
+        QMessageBox::information(this, tr("FFMPEG path"), tr("Please, set the ffmpeg path, in settings tab!"));
+        return false;
+    }
 
 
-    ui->pathRecordEdit->setText( currentPath );
-    QDir::setCurrent( currentPath );
+    return true;
 }
 
-void MainWindow::ffmpegDirButtonClicked()
-{
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
-                                    "/home", "*.*");
-    ui->ffmpegEdit->setText( fileName );
-}
-
-void MainWindow::checkUpdate()
-{
-    ui->statusBar->showMessage("check for updates...",5000);
-
-//    QNetworkRequest request;
-//    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-//    QSslConfiguration config = QSslConfiguration::defaultConfiguration();
-//    config.setProtocol(QSsl::SecureProtocols);
-//    request.setSslConfiguration(config);
-
-//    request.setUrl(QUrl("https://github.com/fasa1964/screenrecorder"));
-
-//    request.setHeader(QNetworkRequest::LastModifiedHeader, "screenrecorder");
-//    manager->get(request);
-//    connect(manager, &QNetworkAccessManager::finished, this,  &MainWindow::replyFinished);
-}
-
-void MainWindow::replyFinished(QNetworkReply *reply)
-{
-//    qDebug() << reply->error();
-//    if(reply->error() == QNetworkReply::NoError)
+///// !brief Get events when application minimized
+//bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+//{
+//    if(event->type() == QEvent::Type(QEvent::WindowStateChange))
 //    {
-//            //process json reply
-//            QString strReply = (QString)reply->readAll();
-//            qDebug() << strReply;
+//        if(this->windowState() == Qt::WindowMinimized)
+//        {
+//            pTaskbarProgress->setVisible(true);
+//            if(recordTimer->isActive())
+//            {
+//                //pTaskbarButton->setOverlayIcon(style()->standardIcon(QStyle::SP_MediaStop));
+//                pTaskbarButton->setOverlayIcon(QIcon(":/record.ico"));
+//            }
+//            else
+//            {
+//                //pTaskbarButton->setOverlayIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+//                pTaskbarButton->setOverlayIcon(QIcon(":/start.ico"));
+//            }
+
+//        }
+
+//        // After minimized window and refocus application
+//        // by click on windowTaskBar
+//        if(this->windowState() == Qt::WindowNoState)
+//        {
+//            if(ui->stopRecordingBox->checkState() == Qt::Checked)
+//                recordTimer->stop();
+//        }
+
 //    }
 //    else
 //    {
-//        qDebug() << "ERROR";
+//           // pass the event on to the parent class
+//           return QMainWindow::eventFilter(obj, event);
 //    }
-//    reply->deleteLater();
+
+//    return false;
+//}
+
+/// !brief Get valid window handle
+void MainWindow::showEvent(QShowEvent *event)
+{
+    taskbarButton->setWindow( windowHandle() );
+    event->accept();
 }
+
+
 
 void MainWindow::readSettings()
 {
     QSettings settings("FasaSoft", "FScreenRecorder");
 
-    QString pathFFMPEG = settings.value("pathffmpeg").toString();
-    ui->ffmpegEdit->setText( pathFFMPEG );
+    ui->ffmpegPathEdit->setText( settings.value("pathffmpeg").toString() );
+    ui->minimizedBox->setChecked(settings.value("minimizedWindow",false).toBool());
+    ui->stopRecordingBox->setChecked(settings.value("stoprecording",false).toBool());
+    ui->timeEdit->setTime( settings.value("recordtime", QTime(0,10,0) ).toTime());
 
     QString pathRecord = settings.value("pathrecord", QDir::currentPath()).toString();
-    ui->pathRecordEdit->setText( pathRecord );
+    ui->outputPathEdit->setText( pathRecord );
     QDir::setCurrent(pathRecord);
+
+
+    // Video attributes
+    ui->videoFormatBox->setCurrentText(  settings.value("videoformat", "mkv").toString()  );
+    ui->fpsBox->setValue( settings.value("videoframerate", 25).toInt() );
+    ui->crfBox->setValue( settings.value("videoquality", 20).toInt() );
+
+
+    // Default settings for audio and video devices
+    // Video
+    ui->videoDeviceBox->addItems(QStringList() << "desktop");
+
+    // Audio
+    int index = 0;
+    foreach (QAudioDeviceInfo device, QAudioDeviceInfo::availableDevices(QAudio::AudioInput))
+    {
+          ui->audioDeviceBox->insertItem(index, device.deviceName());
+          index++;
+    }
+
+    // Default settings for video format
+    ui->videoFormatBox->addItems(QStringList() << "mkv" << "mp4");
+
 }
 
 void MainWindow::saveSettings()
 {
     QSettings settings("FasaSoft", "FScreenRecorder");
-    settings.setValue("pathffmpeg", ui->ffmpegEdit->text());
-    settings.setValue("pathrecord", ui->pathRecordEdit->text());
+    settings.setValue("pathffmpeg", ui->ffmpegPathEdit->text());
+    settings.setValue("pathrecord", ui->outputPathEdit->text());
+    settings.setValue("minimizedWindow", ui->minimizedBox->isChecked());
+    settings.setValue("stoprecording", ui->stopRecordingBox->isChecked());
+    settings.setValue("recordtime", ui->timeEdit->time());
+    settings.setValue("videoformat", ui->videoFormatBox->currentText());
+    settings.setValue("videoframerate", ui->fpsBox->value());
+    settings.setValue("videoquality", ui->crfBox->value());
 }
 
 
