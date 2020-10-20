@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>642</width>
-    <height>497</height>
+    <width>579</width>
+    <height>431</height>
    </rect>
   </property>
   <property name="font">
@@ -19,330 +19,319 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout_2">
-    <item row="4" column="0" colspan="6">
-     <widget class="Line" name="line">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="7" column="1" colspan="4">
-     <widget class="QLineEdit" name="pathRecordEdit">
-      <property name="toolTip">
-       <string>Path of recorded videos to save</string>
-      </property>
-      <property name="placeholderText">
-       <string>Enter here the path where the record to save</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="0">
-     <widget class="QLabel" name="label_11">
-      <property name="text">
-       <string>FFMPEG:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1" colspan="5">
-     <spacer name="horizontalSpacer_2">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>559</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
+   <layout class="QGridLayout" name="gridLayout_6">
     <item row="0" column="0">
-     <widget class="QLabel" name="label">
-      <property name="palette">
-       <palette>
-        <active>
-         <colorrole role="WindowText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>85</green>
-            <blue>127</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </active>
-        <inactive>
-         <colorrole role="WindowText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>85</green>
-            <blue>127</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </inactive>
-        <disabled>
-         <colorrole role="WindowText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>120</red>
-            <green>120</green>
-            <blue>120</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </disabled>
-       </palette>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
       </property>
-      <property name="font">
-       <font>
-        <underline>true</underline>
-        <strikeout>false</strikeout>
-       </font>
-      </property>
-      <property name="text">
-       <string>Devices:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="label_3">
-      <property name="text">
-       <string>Video:</string>
-      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Output</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_5">
+        <item row="0" column="0">
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Nr.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_12">
+            <property name="text">
+             <string>Name</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_13">
+            <property name="text">
+             <string>Format</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QSpinBox" name="nrBox">
+            <property name="toolTip">
+             <string>Enter a value for a number of video</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="outputEdit">
+            <property name="toolTip">
+             <string>Name of video</string>
+            </property>
+            <property name="placeholderText">
+             <string>Enter here the name of video</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QComboBox" name="videoFormatBox">
+            <property name="maximumSize">
+             <size>
+              <width>129</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Videoformat</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0">
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>Framerate:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Duration:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>Quality:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QSpinBox" name="fpsBox">
+            <property name="toolTip">
+             <string>Video framerate (fps} </string>
+            </property>
+            <property name="suffix">
+             <string> fps</string>
+            </property>
+            <property name="prefix">
+             <string/>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>25</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QTimeEdit" name="timeEdit">
+            <property name="toolTip">
+             <string>Duration time for recording</string>
+            </property>
+            <property name="displayFormat">
+             <string>HH:mm:ss</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QSpinBox" name="crfBox">
+            <property name="toolTip">
+             <string>Quality of video
+Less value better quality larger file</string>
+            </property>
+            <property name="suffix">
+             <string> crf</string>
+            </property>
+            <property name="minimum">
+             <number>10</number>
+            </property>
+            <property name="maximum">
+             <number>31</number>
+            </property>
+            <property name="value">
+             <number>25</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Process:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QTextBrowser" name="processOutputText">
+          <property name="toolTip">
+           <string>Shows the outputs from ffmpeg</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Device</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Audio:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="audioDeviceBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Video:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="videoDeviceBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>213</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
+        <string>Settings</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>Path:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="outputPathEdit">
+          <property name="toolTip">
+           <string>Path of recorded videos to save</string>
+          </property>
+          <property name="placeholderText">
+           <string>Enter here the outputpath for recorded videos</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="outputPathButton">
+          <property name="maximumSize">
+           <size>
+            <width>129</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Opens a dialog to set the the directorie for saving the recorded videos</string>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>FFMPEG:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="ffmpegPathEdit">
+          <property name="toolTip">
+           <string>Path where ffmpeg is installed include ffmpg.exe</string>
+          </property>
+          <property name="placeholderText">
+           <string>Enter here the path where ffmpeg is installed</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QPushButton" name="ffmpegPathButton">
+          <property name="maximumSize">
+           <size>
+            <width>129</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Opnes a file dialog</string>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="2">
+         <widget class="QCheckBox" name="stopRecordingBox">
+          <property name="text">
+           <string>stop recording when click on taskbar</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" colspan="2">
+         <widget class="QCheckBox" name="minimizedBox">
+          <property name="text">
+           <string>minimized when starting recording</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
     <item row="1" column="0">
-     <widget class="QLabel" name="label_2">
-      <property name="text">
-       <string>Audio:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="0" rowspan="2">
-     <widget class="QLabel" name="label_9">
-      <property name="palette">
-       <palette>
-        <active>
-         <colorrole role="WindowText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>85</green>
-            <blue>127</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </active>
-        <inactive>
-         <colorrole role="WindowText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>85</green>
-            <blue>127</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </inactive>
-        <disabled>
-         <colorrole role="WindowText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>120</red>
-            <green>120</green>
-            <blue>120</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </disabled>
-       </palette>
-      </property>
-      <property name="font">
-       <font>
-        <underline>true</underline>
-       </font>
-      </property>
-      <property name="text">
-       <string>Output:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="5">
-     <widget class="QPushButton" name="ffmpegDirButton">
-      <property name="maximumSize">
-       <size>
-        <width>129</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="toolTip">
-       <string>Opnes a file dialog</string>
-      </property>
-      <property name="text">
-       <string>...</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1" colspan="5">
-     <widget class="QComboBox" name="audioDeviceBox"/>
-    </item>
-    <item row="7" column="0">
-     <widget class="QLabel" name="label_10">
-      <property name="text">
-       <string>Dir:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="1" colspan="4">
-     <widget class="QLineEdit" name="ffmpegEdit">
-      <property name="toolTip">
-       <string>Path where ffmpeg is installed include ffmpg.exe</string>
-      </property>
-      <property name="placeholderText">
-       <string>Enter here the path where ffmpeg is installed</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1" colspan="5">
-     <widget class="QComboBox" name="videoDeviceBox"/>
-    </item>
-    <item row="11" column="0">
-     <widget class="QLabel" name="label_4">
-      <property name="text">
-       <string>Process:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="10" column="5">
-     <widget class="QSpinBox" name="crfBox">
-      <property name="toolTip">
-       <string>Quality of video
-Less value better quality larger file</string>
-      </property>
-      <property name="suffix">
-       <string> crf</string>
-      </property>
-      <property name="minimum">
-       <number>10</number>
-      </property>
-      <property name="maximum">
-       <number>31</number>
-      </property>
-      <property name="value">
-       <number>25</number>
-      </property>
-     </widget>
-    </item>
-    <item row="10" column="4">
-     <widget class="QLabel" name="label_8">
-      <property name="text">
-       <string>Quality:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="11" column="1" rowspan="2" colspan="5">
-     <widget class="QTextBrowser" name="processOutputText">
-      <property name="toolTip">
-       <string>Shows the outputs from ffmpeg</string>
-      </property>
-     </widget>
-    </item>
-    <item row="9" column="0">
-     <widget class="QLabel" name="label_5">
-      <property name="text">
-       <string>Nr / File:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="9" column="5">
-     <widget class="QComboBox" name="videoFormatBox">
-      <property name="maximumSize">
-       <size>
-        <width>129</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="toolTip">
-       <string>Videoformat</string>
-      </property>
-     </widget>
-    </item>
-    <item row="12" column="0">
-     <spacer name="verticalSpacer">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>56</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="10" column="1">
-     <widget class="QTimeEdit" name="timeEdit">
-      <property name="toolTip">
-       <string>Duration time for recording</string>
-      </property>
-      <property name="displayFormat">
-       <string>HH:mm:ss</string>
-      </property>
-     </widget>
-    </item>
-    <item row="10" column="0">
-     <widget class="QLabel" name="label_6">
-      <property name="text">
-       <string>Duration:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="10" column="2">
-     <widget class="QLabel" name="label_7">
-      <property name="text">
-       <string>Framerate:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="10" column="3">
-     <widget class="QSpinBox" name="fpsBox">
-      <property name="toolTip">
-       <string>Video framerate (fps} </string>
-      </property>
-      <property name="suffix">
-       <string> fps</string>
-      </property>
-      <property name="prefix">
-       <string/>
-      </property>
-      <property name="maximum">
-       <number>100</number>
-      </property>
-      <property name="value">
-       <number>25</number>
-      </property>
-     </widget>
-    </item>
-    <item row="7" column="5">
-     <widget class="QPushButton" name="dirButton">
-      <property name="maximumSize">
-       <size>
-        <width>129</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="toolTip">
-       <string>Opens a dialog to set the the directorie for saving the recorded videos</string>
-      </property>
-      <property name="text">
-       <string>...</string>
-      </property>
-     </widget>
-    </item>
-    <item row="13" column="1" colspan="5">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="leftMargin">
        <number>0</number>
@@ -489,6 +478,10 @@ Less value better quality larger file</string>
         <property name="text">
          <string>&amp;record</string>
         </property>
+        <property name="icon">
+         <iconset resource="images.qrc">
+          <normaloff>:/start.ico</normaloff>:/start.ico</iconset>
+        </property>
         <property name="shortcut">
          <string>Ctrl+R</string>
         </property>
@@ -540,23 +533,6 @@ Less value better quality larger file</string>
       </item>
      </layout>
     </item>
-    <item row="9" column="2" colspan="3">
-     <widget class="QLineEdit" name="outputEdit">
-      <property name="toolTip">
-       <string>Name of video</string>
-      </property>
-      <property name="placeholderText">
-       <string>Enter here the name of video</string>
-      </property>
-     </widget>
-    </item>
-    <item row="9" column="1">
-     <widget class="QSpinBox" name="nrBox">
-      <property name="toolTip">
-       <string>Enter a value for a number of video</string>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -570,6 +546,8 @@ Less value better quality larger file</string>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="images.qrc"/>
+ </resources>
  <connections/>
 </ui>
