@@ -1,0 +1,3 @@
+For using FScreenRecorder you have 
+to install ffmpeg.exe
+https://ffmpeg.org/download.html

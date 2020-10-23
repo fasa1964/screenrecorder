@@ -12,6 +12,8 @@
 #include <QDebug>
 
 
+
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -27,12 +29,27 @@ MainWindow::MainWindow(QWidget *parent) :
     elapsedSeconds = 0;
     merging = false;
 
+    ui->timelineSlider->setRange(0,140);
+    ui->timelineSlider->setColor( Qt::magenta );
+    ui->timelineSlider->setSelectedColor( Qt::yellow );
+    ui->timelineSlider->setTextColor(Qt::blue);
+    ui->timelineSlider->update();
+
     // Timer for record duration
     recordTimer = new QTimer(this);
 
     // Process for ffmpeg
     recordProcess = new QProcess(this);
     recordProcess->setProcessChannelMode(QProcess::MergedChannels);
+
+    infoProcess = new QProcess(this);
+    infoProcess->setProcessChannelMode(QProcess::MergedChannels);
+    connect(infoProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::readyReadInfoStandardOutput);
+
+    cutProcess = new QProcess(this);
+    cutProcess->setProcessChannelMode(QProcess::MergedChannels);
+    connect(cutProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+         [=](int exitCode, QProcess::ExitStatus exitStatus){ cutProcessFinished(exitCode, exitStatus); });
 
     // connect process signals
     connect(recordProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::readyReadStandardOutput);
@@ -44,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->closeButton, &QPushButton::clicked, this, &MainWindow::closeButtonClicked);
     connect(ui->recordButton, &QPushButton::clicked, this, &MainWindow::recordButtonClicked);
     connect(ui->mergeButton, &QPushButton::clicked, this, &MainWindow::mergeButtonClicked);
-    connect(ui->infoButton, &QPushButton::clicked, this, &MainWindow::infoButtonClicked);
+    connect(ui->infoButton, &QPushButton::clicked, this, &MainWindow::infoButtonClicked);    
 
     connect(ui->outputPathButton, &QPushButton::clicked, this, &MainWindow::outputPathButtonClicked);
     connect(ui->ffmpegPathButton, &QPushButton::clicked, this, &MainWindow::ffmpegPathButtonClicked);
@@ -52,12 +69,16 @@ MainWindow::MainWindow(QWidget *parent) :
     // connect record timer
     connect(recordTimer, &QTimer::timeout, this, &MainWindow::timeout );
 
-//    connect(recordProcess, &QProcess::started, this, &MainWindow::recordStarted);
-//    connect(recordProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-//         [=](int exitCode, QProcess::ExitStatus exitStatus){ recordFinished(exitCode, exitStatus); });
+    // for the tools panel
+    connect(ui->tabWidget, &QTabWidget::currentChanged , this, &MainWindow::tabIndexChanged );
+    connect(ui->videoListWidget, &QListWidget::itemClicked, this, &MainWindow::itemClicked );
+    connect(ui->cutButton, &QPushButton::clicked, this, &MainWindow::cutButtonClicked);
+    connect(ui->timelineSlider, &SliderTwoHandle::leftValueChanged, this, &MainWindow::handleSliderLeftValueChanged);
+    connect(ui->timelineSlider, &SliderTwoHandle::rightValueChanged, this, &MainWindow::handleSliderRightValueChanged);
 
 
-//    installEventFilter(this);
+
+    installEventFilter(this);
 
     taskbarButton = new QWinTaskbarButton(this);
     taskbarButton->setOverlayIcon(QIcon(":/start.ico"));
@@ -70,6 +91,7 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
 
 void MainWindow::closeButtonClicked()
 {
@@ -149,15 +171,10 @@ void MainWindow::infoButtonClicked()
 void MainWindow::mergeButtonClicked()
 {
     // Get available videos
-    QDir dir = QDir::current();
-    dir.setFilter(QDir::Files);
-
     QStringList filters;
     filters << "*." + ui->videoFormatBox->currentText();
-    dir.setNameFilters(filters);
-    dir.setSorting(QDir::Time | QDir::Reversed );
 
-    QStringList list =  dir.entryList();
+    QStringList list =  availableVideos(QDir::current(), filters);
 
     DialogVideoList *videoDlg = new DialogVideoList(list, this);
     if(videoDlg->exec() == QDialog::Rejected)
@@ -196,6 +213,24 @@ void MainWindow::mergeButtonClicked()
 
 }
 
+void MainWindow::cutButtonClicked()
+{
+    QStringList argumentList;
+    QString program = ui->ffmpegPathEdit->text();
+    QString output = getText(ui->selectedVideoEdit->text(), "", '.') + "CutVersion" + "." + ui->videoFormatBox->currentText();
+    argumentList << "-i" << ui->selectedVideoEdit->text()
+                 << "-ss" << QString::number(ui->startSecBox->value(),10)
+                 << "-t" << QString::number(ui->endSecBox->value(),10)
+                 << "-c" << "copy"
+                 << output;
+
+    cutProcess->setProcessChannelMode(QProcess::MergedChannels);
+    cutProcess->start(program, argumentList);
+
+    ui->cutButton->setEnabled(false);
+
+}
+
 /// !brief Get ffmpeg installed path including exe/bin
 void MainWindow::ffmpegPathButtonClicked()
 {
@@ -215,6 +250,51 @@ void MainWindow::outputPathButtonClicked()
 
     // Set application working directorie
     QDir::setCurrent( outputpath );
+}
+
+/// !brief Update videos when tab tools was selected
+void MainWindow::tabIndexChanged(int index)
+{
+    if(index == 3) // Tab tools was selected
+        updateVideoListWidget();
+}
+
+/// !brief When click on videoListWidget item
+/// in the tools panel
+void MainWindow::itemClicked(QListWidgetItem *item)
+{
+    if(item->checkState() == Qt::Unchecked)
+        return;
+
+    for(int i = 0; i < ui->videoListWidget->count(); i++){
+        if(item->checkState() == Qt::Checked){
+            if(ui->videoListWidget->item(i)->text() != item->text())
+                ui->videoListWidget->item(i)->setCheckState(Qt::Unchecked);
+
+        }
+    }
+
+    QString videofile = QDir::currentPath()+"/"+item->text();
+    ui->selectedVideoEdit->setText( videofile );
+
+    QString programm = ui->ffmpegPathEdit->text();
+    programm.replace("ffmpeg.exe", "ffprobe.exe");
+
+    // mkv -> width, height, r_frame_rate, start_time, TAG:DURATION
+    // mp4 -> width, height, r_frame_rate, start_time, duration
+
+    QStringList argumentList;
+    argumentList << "-v" << "error"
+                 << "-show_format"
+                 << videofile;
+
+    infoProcess->start(programm, argumentList);
+
+}
+
+void MainWindow::timlineSliderChanged(int value)
+{
+    ui->startSecBox->setValue(value);
 }
 
 /// !brief Slot form recordTimer
@@ -262,6 +342,11 @@ void MainWindow::readyReadStandardOutput()
                 taskbarProgress->setPaused(true);
             }
 
+            // When Overwrite occure the task bar process appear in
+            // yellow color by default, make sure the application
+            // popup.
+            setWindowState(Qt::WindowActive);
+
             int result = QMessageBox::question(this, tr("Question"), s,
                          QMessageBox::Yes, QMessageBox::No);
 
@@ -276,11 +361,9 @@ void MainWindow::readyReadStandardOutput()
                 recordProcess->write("N\n");
                 taskbarProgress->stop();
             }
-
         }
     }
 }
-
 
 /// !brief Get the state of record process
 void MainWindow::recordProcessStateChanged(QProcess::ProcessState status)
@@ -313,9 +396,7 @@ void MainWindow::recordProcessStateChanged(QProcess::ProcessState status)
         ui->recordButton->setIcon(QIcon(":/start.ico"));
 
         taskbarButton->setOverlayIcon(QIcon(":/start.ico"));
-
     }
-
 }
 
 void MainWindow::processFinished(int exitCode, QProcess::ExitStatus status)
@@ -341,6 +422,75 @@ void MainWindow::processFinished(int exitCode, QProcess::ExitStatus status)
     }
 
     merging = false;
+}
+
+void MainWindow::cutProcessFinished(int exitCode, QProcess::ExitStatus status)
+{
+    if(exitCode == 0 && status == QProcess::NormalExit){
+        ui->statusBar->showMessage("Cutting process successful finished!");
+    }
+
+    if(exitCode == 1 && status == QProcess::CrashExit){
+        QMessageBox::warning(this, tr("Error"), tr("Process error occured:\n")+cutProcess->errorString());
+        return;
+    }
+}
+
+void MainWindow::readyReadInfoStandardOutput()
+{ 
+    QByteArray array = infoProcess->readAllStandardOutput();
+    QString text(array);
+    QStringList list = text.split("\n");
+    foreach (QString s, list) {
+
+        if(s.contains("start_time")){
+           double min = getText( s, "start_time=", '\r').toDouble();
+           ui->startSecBox->setValue( min );
+           ui->timelineSlider->setMinimum( min );
+        }
+
+        if(s.contains("duration")){
+            double max = getText(s, "duration=", '\r').toDouble();
+            ui->endSecBox->setValue( max  );
+            ui->timelineSlider->setMaximum( max );
+        }
+    }
+
+    ui->timelineSlider->update();
+    ui->cutButton->setEnabled(true);
+}
+
+void MainWindow::handleSliderLeftValueChanged(int value)
+{
+    ui->startSecBox->setValue(value);
+}
+
+void MainWindow::handleSliderRightValueChanged(int value)
+{
+    ui->endSecBox->setValue(value);
+}
+
+void MainWindow::updateVideoListWidget()
+{
+    QStringList vList = availableVideos(QDir::current(), QStringList() << "*.mkv" << "*.mp4");
+
+    ui->videoListWidget->clear();
+    foreach (QString s, vList) {
+        QListWidgetItem *item = new QListWidgetItem(s);
+        item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled );
+        item->setCheckState(Qt::Unchecked);
+        ui->videoListWidget->addItem(item);
+    }
+}
+
+QStringList MainWindow::availableVideos(QDir dir, const QStringList &filters)
+{
+    dir.setFilter(QDir::Files);
+    dir.setNameFilters(filters);
+    dir.setSorting(QDir::Time | QDir::Reversed );
+
+    return  dir.entryList();
+
 }
 
 QString MainWindow::getText(const QString &sourceText, const QString &fromText, const QChar &tilChar)
@@ -383,44 +533,26 @@ bool MainWindow::checkPath()
     return true;
 }
 
-///// !brief Get events when application minimized
-//bool MainWindow::eventFilter(QObject *obj, QEvent *event)
-//{
-//    if(event->type() == QEvent::Type(QEvent::WindowStateChange))
-//    {
-//        if(this->windowState() == Qt::WindowMinimized)
-//        {
-//            pTaskbarProgress->setVisible(true);
-//            if(recordTimer->isActive())
-//            {
-//                //pTaskbarButton->setOverlayIcon(style()->standardIcon(QStyle::SP_MediaStop));
-//                pTaskbarButton->setOverlayIcon(QIcon(":/record.ico"));
-//            }
-//            else
-//            {
-//                //pTaskbarButton->setOverlayIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-//                pTaskbarButton->setOverlayIcon(QIcon(":/start.ico"));
-//            }
+/// !brief Get events when application minimized or popup back from taskbar
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    if(event->type() == QEvent::Type(QEvent::WindowStateChange)){
 
-//        }
+        // Window popup from taskbar
+        if(windowState() == Qt::WindowNoState){
 
-//        // After minimized window and refocus application
-//        // by click on windowTaskBar
-//        if(this->windowState() == Qt::WindowNoState)
-//        {
-//            if(ui->stopRecordingBox->checkState() == Qt::Checked)
-//                recordTimer->stop();
-//        }
+            // When set to stop recording when click on taskbar
+            if(ui->stopRecordingBox->isChecked() && recordTimer->isActive())
+                recordProcess->write("q\n"); // quit recording
+        }
+    }
+    else{
+        // pass the event on to the parent class
+        return QMainWindow::eventFilter(obj, event);
+    }
 
-//    }
-//    else
-//    {
-//           // pass the event on to the parent class
-//           return QMainWindow::eventFilter(obj, event);
-//    }
-
-//    return false;
-//}
+    return false;
+}
 
 /// !brief Get valid window handle
 void MainWindow::showEvent(QShowEvent *event)
@@ -463,8 +595,14 @@ void MainWindow::readSettings()
           index++;
     }
 
+    // Add the default audio input device input
+    ui->audioDeviceBox->insertItem(ui->audioDeviceBox->count(), QAudioDeviceInfo::defaultInputDevice().deviceName());
+
+
     // Default settings for video format
     ui->videoFormatBox->addItems(QStringList() << "mkv" << "mp4");
+
+    ui->tabWidget->setCurrentIndex(0);
 
 }
 

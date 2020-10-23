@@ -23,7 +23,6 @@
 #include <QWinTaskbarProgress>
 #include <QWinTaskbarButton>
 
-
 #include <dialogvideolist.h>
 
 namespace Ui {
@@ -39,7 +38,7 @@ public:
     ~MainWindow();
 
 protected:
-//    virtual bool eventFilter(QObject *obj, QEvent *event) override;
+    virtual bool eventFilter(QObject *obj, QEvent *event) override;
     virtual void showEvent(QShowEvent *event);
 
 
@@ -48,9 +47,15 @@ private slots:
     void recordButtonClicked();
     void infoButtonClicked();
     void mergeButtonClicked();
+    void cutButtonClicked();
 
     void ffmpegPathButtonClicked();
     void outputPathButtonClicked();
+
+    // For the tools tab
+    void tabIndexChanged(int index);
+    void itemClicked(QListWidgetItem *item);
+    void timlineSliderChanged(int value);
 
     // SIGNALS from QTimer
     void timeout();
@@ -59,13 +64,21 @@ private slots:
     void readyReadStandardOutput();
     void recordProcessStateChanged(QProcess::ProcessState status);
     void processFinished(int exitCode, QProcess::ExitStatus status);
+    void cutProcessFinished(int exitCode, QProcess::ExitStatus status);
 
+
+    void readyReadInfoStandardOutput();
+
+    void handleSliderLeftValueChanged(int value);
+    void handleSliderRightValueChanged(int value);
 
 private:
     Ui::MainWindow *ui;
 
     // Process for ffmpeg
     QProcess *recordProcess;
+    QProcess *infoProcess;
+    QProcess *cutProcess;
 
     // Take care of record time
     // ffmpeg stop recording video by -t duration
@@ -82,6 +95,11 @@ private:
     QWinTaskbarButton *taskbarButton;
     QWinTaskbarProgress *taskbarProgress;
 
+    // For the tools tab
+    void updateVideoListWidget();
+
+
+    QStringList availableVideos(QDir dir, const QStringList &filters);
     QString getText(const QString &sourceText, const QString &fromText, const QChar &tilChar);
     bool checkPath();
     void readSettings();

@@ -10,6 +10,7 @@ QT      += network
 QT      += winextras
 
 
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = FScreenRecorder
@@ -32,12 +33,14 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     dialogvideolist.cpp \
-    dialoginfo.cpp
+    dialoginfo.cpp \
+    slidertwohandle.cpp
 
 HEADERS += \
         mainwindow.h \
     dialogvideolist.h \
-    dialoginfo.h
+    dialoginfo.h \
+    slidertwohandle.h
 
 FORMS += \
         mainwindow.ui \
@@ -46,3 +49,8 @@ FORMS += \
 
 RESOURCES += \
     images.qrc
+
+DISTFILES += \
+    GPLV3.txt \
+    FFMEGInfo.txt \
+    ToDo.txt

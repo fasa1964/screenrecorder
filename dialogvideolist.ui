@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>501</width>
-    <height>363</height>
+    <width>531</width>
+    <height>399</height>
    </rect>
   </property>
   <property name="font">
@@ -115,9 +115,6 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="3">
-    <widget class="QListWidget" name="listWidget"/>
-   </item>
    <item row="3" column="0" colspan="3">
     <widget class="QLineEdit" name="videoNameEdit">
      <property name="placeholderText">
@@ -191,6 +188,9 @@
       <string>&amp;apply</string>
      </property>
     </widget>
+   </item>
+   <item row="2" column="0" colspan="3">
+    <widget class="QListWidget" name="listWidget"/>
    </item>
   </layout>
  </widget>
