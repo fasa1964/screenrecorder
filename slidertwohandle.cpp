@@ -18,7 +18,7 @@ SliderTwoHandle::SliderTwoHandle(QWidget *parent) : QSlider(parent)
     setRange(0,100);
     lValue = 0.0;
     rValue = maximum();
-    setDiffValue(rValue-lValue);
+    setDiffValue( static_cast<int>(rValue) - static_cast<int>(lValue));
 
     setShowText(true);
     setColor(QColor(0, 115, 230));
@@ -54,7 +54,8 @@ void SliderTwoHandle::paintEvent(QPaintEvent *)
         pen.setColor( selectedColor() );
 
     painter.setPen(pen);
-    painter.drawLine(leftHandle().right(), rect().height()/2 , rightHandle().left(),rect().height()/2 );
+    QLineF line(leftHandle().right(), rect().height()/2 , rightHandle().left(),rect().height()/2);
+    painter.drawLine( line );
 
     if(showText()){
         painter.setPen( textColor() );
@@ -116,24 +117,24 @@ void SliderTwoHandle::mousePressEvent(QMouseEvent *ev)
     else
         rightHandleSelect = false;
 
-    return QWidget::mousePressEvent(ev);
+    //return QWidget::mousePressEvent(ev);
 }
 
-void SliderTwoHandle::mouseReleaseEvent(QMouseEvent *ev)
+void SliderTwoHandle::mouseReleaseEvent(QMouseEvent *)
 {
     leftHandleSelect = false;
     rightHandleSelect = false;
 
-    return QWidget::mouseReleaseEvent(ev);
+    //return QWidget::mouseReleaseEvent(ev);
 }
 
-void SliderTwoHandle::resizeEvent(QResizeEvent *event)
+void SliderTwoHandle::resizeEvent(QResizeEvent *)
 {
-    if(rValue == maximum())
-        x2 = rect().width() - rightHandle().width() - 1;
+//    if(rValue == qFloor( maximum() ))
+//        x2 = rect().width() - rightHandle().width() - 1;
 
-    if(x2 > rect().width() - rightHandle().width() || rValue != maximum() )
-        x2 = (rect().width()-rightHandle().width()-1) / 100 * (rValue - minimum());
+//    if(x2 > rect().width() - rightHandle().width() || rValue != maximum() )
+//        x2 = (rect().width()-rightHandle().width()-1) / 100 * (rValue - minimum());
 
     if(rightHandle().x() >= this->width()){
         x2 = this->width() - rightHandle().width()-1;

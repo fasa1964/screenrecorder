@@ -41,8 +41,8 @@ public:
 protected:
     virtual void mouseMoveEvent(QMouseEvent *ev) override;
     virtual void mousePressEvent(QMouseEvent *ev) override;
-    virtual void mouseReleaseEvent(QMouseEvent *ev) override;
-    virtual void resizeEvent(QResizeEvent *event) override;
+    virtual void mouseReleaseEvent(QMouseEvent *) override;
+    virtual void resizeEvent(QResizeEvent *) override;
 
 signals:
     void leftValueChanged(int value);
