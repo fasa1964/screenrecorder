@@ -301,7 +301,9 @@ void MainWindow::timeout()
             recordProcess->write("q\n");
     }
 
+#ifdef Q_OS_WIN32
     taskbarProgress->setValue(elapsedSeconds);
+#endif
 
 }
 

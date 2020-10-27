@@ -42,12 +42,12 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *event) override;
-    virtual void showEvent(QShowEvent *event);
+    virtual void showEvent(QShowEvent *event) override;
 
 
 private slots:
@@ -105,10 +105,10 @@ private:
     QWinTaskbarProgress *taskbarProgress;
 #endif
 
-#ifdef Q_OS_LINUX
-    QX11TaskbarControl *taskbarControl;
+//#ifdef Q_OS_LINUX
+//    QX11TaskbarControl *taskbarControl;
 
-#endif
+//#endif
 
     // For the tools tab
     void updateVideoListWidget();
