@@ -1,0 +1,9 @@
+For using FScreenRecorder you have 
+to install ffmpeg.exe
+https://ffmpeg.org/download.html
+
+Icon Reference:
+https://iconarchive.com/show/oxygen-icons-by-oxygen-icons.org/Actions-media-record-icon.html
+
+TaskbarControl Reference:
+https://github.com/Skycoder42/QTaskbarControl

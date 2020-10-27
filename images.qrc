@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/">
+        <file>FScreenRecorder.svg</file>
+        <file>FScreenRecorder16.png</file>
+        <file>FScreenRecorder32.png</file>
+        <file>FScreenRecorder48.png</file>
+        <file>FScreenRecorder64.png</file>
+        <file>FScreenRecorder128.png</file>
+        <file>FScreenRecorder256.png</file>
+        <file>FScreenRecorder512.png</file>
+        <file>start.ico</file>
+        <file>record.ico</file>
+        <file>FScreenRecorder.ico</file>
+    </qresource>
+</RCC>
