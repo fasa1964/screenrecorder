@@ -31,6 +31,6 @@ void DialogInfo::qtButtonClicked()
 
 void DialogInfo::updateButtonClicked()
 {
-    close();
     emit checkForUpdate();
+    //close();
 }
