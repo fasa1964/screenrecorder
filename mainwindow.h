@@ -43,7 +43,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() override;
 
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *event) override;
@@ -76,8 +76,11 @@ private slots:
     void processFinished(int exitCode, QProcess::ExitStatus status);
     void cutProcessFinished(int exitCode, QProcess::ExitStatus status);
 
-
+    // SIGNALS from infoProcess
     void readyReadInfoStandardOutput();
+
+    // SIGNALS from DialogInfo
+    void checkUpdate();
 
 private:
     Ui::MainWindow *ui;
@@ -110,11 +113,15 @@ private:
 
 //#endif
 
+    QString platform;
+    void setPlatformInfo();
+
     // For the tools tab
     void updateVideoListWidget();
 
     QStringList availableVideos(QDir dir, const QStringList &filters);
     QString getText(const QString &sourceText, const QString &fromText, const QChar &tilChar);
+    double getDuration(const QString &s);
     bool checkPath();
     void readSettings();
     void saveSettings();

@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 #include <QtMath>
@@ -7,9 +7,12 @@
 #include <QFile>
 #include <QTextStream>
 #include <QMessageBox>
+#include <QScreen>
+#include <QString>
 
 #include <dialoginfo.h>
 #include <QDebug>
+
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -21,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle("FScreenRecord");
     setWindowIcon(QIcon(":/FScreenRecorder.ico"));
 
+    setPlatformInfo();
     readSettings();
 
     durationSeconds = 0;
@@ -40,6 +44,14 @@ MainWindow::MainWindow(QWidget *parent) :
     recordProcess = new QProcess(this);
     recordProcess->setProcessChannelMode(QProcess::MergedChannels);
 
+    // connect process signals
+    connect(recordProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::readyReadStandardOutput);
+    connect(recordProcess, &QProcess::stateChanged , this, &MainWindow::recordProcessStateChanged);
+    connect(recordProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+         [=](int exitCode, QProcess::ExitStatus exitStatus){ processFinished(exitCode, exitStatus); });
+
+
+
     infoProcess = new QProcess(this);
     infoProcess->setProcessChannelMode(QProcess::MergedChannels);
     connect(infoProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::readyReadInfoStandardOutput);
@@ -48,12 +60,6 @@ MainWindow::MainWindow(QWidget *parent) :
     cutProcess->setProcessChannelMode(QProcess::MergedChannels);
     connect(cutProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
          [=](int exitCode, QProcess::ExitStatus exitStatus){ cutProcessFinished(exitCode, exitStatus); });
-
-    // connect process signals
-    connect(recordProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::readyReadStandardOutput);
-    connect(recordProcess, &QProcess::stateChanged , this, &MainWindow::recordProcessStateChanged);
-    connect(recordProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-         [=](int exitCode, QProcess::ExitStatus exitStatus){ processFinished(exitCode, exitStatus); });
 
     // connect application signals
     connect(ui->closeButton, &QPushButton::clicked, this, &MainWindow::closeButtonClicked);
@@ -132,28 +138,84 @@ void MainWindow::recordButtonClicked()
     QString nrs = QString("%1%2").arg(QString::number(ui->nrBox->value(),10),2,'0').arg(ui->outputEdit->text());
     QString output =  nrs + "." + ui->videoFormatBox->currentText();
 
-    QString audioDevice = ui->audioDeviceBox->currentText();    // input audio device
-    QString videoDevice = ui->videoDeviceBox->currentText();    // only desktop available
+
+    QString videoDevice;
+    QString audioDevice;
+    QString videoGrab;
+    QString videoSize;
+
+    // check screen selected
+    QString screenName = ui->videoDeviceBox->currentText();
+    if(platform == "linux"){
+
+        QScreen *selectedScreen = QGuiApplication::primaryScreen();
+        QList<QScreen *> screenList = QGuiApplication::screens();
+        foreach(QScreen *s, screenList){
+            if(s->name() == screenName)
+                selectedScreen = s;
+        }
+
+
+        if(selectedScreen->availableGeometry().x() == 0){  // Screen is on left side
+            videoDevice = ":0.0";
+            videoSize = QString::number( selectedScreen->size().width(), 10) + "x" + QString::number( selectedScreen->size().height(),10);
+        }
+        else {
+
+            videoDevice = ":0.0+" + QString::number(selectedScreen->availableGeometry().x(),10) + ",0";
+            videoSize = QString::number( selectedScreen->size().width(), 10) + "x" + QString::number( selectedScreen->size().height(),10);
+        }
+    }
+
+    if(platform == "windows"){
+        videoDevice = "desktop";                            // only desktop available yet
+        videoGrab = "gdigrab";
+        audioDevice = ui->audioDeviceBox->currentText();    // input audio device
+    }
+
     QString crf = QString::number(ui->crfBox->value(),10);      // quality of video
     QString fps = QString::number(ui->fpsBox->value(),10);      // framerate of video
     QString seconds =  QString::number( QTime(0,0,0).secsTo(ui->timeEdit->time()),10); // record duration in sec
     durationSeconds = QTime(0,0,0).secsTo(ui->timeEdit->time());
-//    argumentList << "-vers";
-    argumentList << "-rtbufsize" << "1500M"
-                 << "-f" << "dshow"
-                 << "-i" << "audio=" + audioDevice
-                 << "-f" << "-y" << "-rtbufsize" << "100M"
-                 << "-f" << "gdigrab"
-                 << "-t" << seconds
-                 << "-framerate" << fps
-                 << "-probesize" << "10M"
-                 << "-draw_mouse" << "1"
-                 << "-i" << videoDevice // "desktop" default
-                 << "-c:v" << "libx264"
-                 << "-r" << fps << "-preset" << "ultrafast"
-                 << "-tune" << "zerolatency"
-                 << "-crf" << crf << "-pix_fmt" << "yuv420p"
-                 << output;
+
+    if(platform == "windows"){
+
+        argumentList << "-rtbufsize" << "1500M"
+                     << "-f" << "dshow"
+                     << "-i" << "audio=" + audioDevice
+                     << "-f" << "-y" << "-rtbufsize" << "100M"
+                     << "-f" << videoGrab
+                     << "-t" << seconds
+                     << "-framerate" << fps
+                     << "-probesize" << "10M"
+                     << "-draw_mouse" << "1"
+                     << "-i" << videoDevice // "desktop" default
+                     << "-c:v" << "libx264"
+                     << "-r" << fps << "-preset" << "ultrafast"
+                     << "-tune" << "zerolatency"
+                     << "-crf" << crf << "-pix_fmt" << "yuv420p"
+                     << output;
+
+    }
+
+    if(platform == "linux"){
+
+
+        videoGrab = "x11grab";
+
+        argumentList  << "-video_size" << videoSize  // e.g "1440x900"
+                      << "-framerate" << fps
+                      << "-f" << videoGrab
+                      << "-i" << videoDevice        // ":0.0+1024,0"
+                      << "-f" << "alsa"             // better performance while recording frame drops = 3 by 2 Minutes : pulse = whorse
+                      << "-ac" << "2"
+                      << "-i" << "default"
+                      << "-crf" << crf << "-pix_fmt" << "yuv420p"
+                      << "-preset" << "ultrafast"
+                      << "-c:v" << "libx264"
+                      << output;
+    }
+
 
     recordProcess->start(programm, argumentList);
 
@@ -162,7 +224,7 @@ void MainWindow::recordButtonClicked()
 void MainWindow::infoButtonClicked()
 {
     DialogInfo *infoDlg = new DialogInfo(this);
-    //connect(infoDlg, &DialogInfo::checkForUpdate, this, &MainWindow::checkUpdate);
+    connect(infoDlg, &DialogInfo::checkForUpdate, this, &MainWindow::checkUpdate);
     infoDlg->exec();
 }
 
@@ -180,6 +242,15 @@ void MainWindow::mergeButtonClicked()
 
     QStringList videoList = videoDlg->request();
     QString videoName = videoDlg->getVideoName();
+
+    foreach(QString sn, videoList){
+        if(sn.contains(' ')){
+            QMessageBox::information(this, tr("Merge Videos"), tr("Please remove all spaces from filename,\n"
+                                                                  "before merging videos!"));
+            return;
+        }
+    }
+
 
     QFile file("video.txt");
     if(file.exists())
@@ -276,7 +347,14 @@ void MainWindow::itemClicked(QListWidgetItem *item)
     ui->selectedVideoEdit->setText( videofile );
 
     QString programm = ui->ffmpegPathEdit->text();
+
+#ifdef Q_OS_WIN32
     programm.replace("ffmpeg.exe", "ffprobe.exe");
+#endif
+
+#ifdef Q_OS_LINUX
+    programm.replace("ffmpeg", "ffprobe");
+#endif
 
     // mkv -> width, height, r_frame_rate, start_time, TAG:DURATION
     // mp4 -> width, height, r_frame_rate, start_time, duration
@@ -311,6 +389,16 @@ void MainWindow::timeout()
 /// specialy during recording
 void MainWindow::readyReadStandardOutput()
 {
+
+
+//    if(!recordProcess->errorString().isEmpty()){
+//        QMessageBox::information(this, tr("Process Error"), tr("Recording Error:\n") +
+//                                QString::number(recordProcess->error(),10)+ ":" + recordProcess->errorString());
+//        recordProcess->write("q\n");
+//        return;
+
+//    }
+
     QByteArray outputArray = recordProcess->readAllStandardOutput();
     QList<QByteArray> outputList = outputArray.split('\n');
     foreach (QString s, outputList) {
@@ -383,7 +471,8 @@ void MainWindow::recordProcessStateChanged(QProcess::ProcessState status)
 
     }
 
-    if(status == QProcess::Starting){
+    if(status == QProcess::Starting && merging == false){
+
         elapsedSeconds = 0;
         recordTimer->start(1000);
 
@@ -457,19 +546,36 @@ void MainWindow::readyReadInfoStandardOutput()
 
         if(s.contains("start_time")){
            double min = getText( s, "start_time=", '\r').toDouble();
-           ui->startSecBox->setValue( min );
+           ui->startSecBox->setValue( static_cast<int>(min) );
            ui->timelineSlider->setMinimum( min );
         }
 
         if(s.contains("duration")){
-            double max = getText(s, "duration=", '\r').toDouble();
-            ui->endSecBox->setValue( max  );
+            double max =  getDuration(s);
+            ui->endSecBox->setValue( static_cast<int>(max) );
             ui->timelineSlider->setMaximum( max );
         }
     }
 
     ui->timelineSlider->update();
     ui->cutButton->setEnabled(true);
+}
+
+void MainWindow::checkUpdate()
+{
+    QMessageBox::information(this, tr("Update"), tr("Not implemented yet!"));
+}
+
+void MainWindow::setPlatformInfo()
+{
+    platform = "unknown";
+
+#ifdef Q_OS_WIN32
+    platform = "windows";
+#endif
+#ifdef Q_OS_LINUX
+    platform = "linux";
+#endif
 }
 
 void MainWindow::handleSliderLeftValueChanged(int value)
@@ -509,12 +615,22 @@ QString MainWindow::getText(const QString &sourceText, const QString &fromText, 
 {
     QString text;
 
-    if(!sourceText.contains(fromText))
-        return text;
+
+    if(!fromText.isEmpty()){
+        if(!sourceText.contains(fromText))
+            return text;
+    }
+
     if(!sourceText.contains(tilChar))
         return text;
 
-    int index = sourceText.indexOf(fromText);
+    int index;
+
+    if(!fromText.isEmpty())
+        index = sourceText.indexOf(fromText);
+    else
+        index = 0;
+
     index += fromText.size();
 
     for(int i = index; i < sourceText.size(); i++){
@@ -523,8 +639,15 @@ QString MainWindow::getText(const QString &sourceText, const QString &fromText, 
         text.append( sourceText.at(i) );
     }
 
-
     return text;
+}
+
+double MainWindow::getDuration(const QString &s)
+{
+    double value = 0.0;
+    QStringList slist = s.split("duration=");
+    value += slist.last().toDouble();
+    return value;
 }
 
 /// !brief Check output path and path of ffmpeg
@@ -600,7 +723,13 @@ void MainWindow::readSettings()
 
     // Default settings for audio and video devices
     // Video
-    ui->videoDeviceBox->addItems(QStringList() << "desktop");
+
+    QList<QScreen *> screenList = QGuiApplication::screens();
+    QStringList screeNames;
+    foreach(QScreen *s, screenList)
+        screeNames << s->name();
+
+    ui->videoDeviceBox->addItems(QStringList() << "desktop" <<  screeNames );
 
     // Audio
     int index = 0;
