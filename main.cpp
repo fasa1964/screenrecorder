@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
     app.setApplicationName("FScreenRecorder");
     app.setApplicationVersion("1.1");
     app.setWindowIcon(QIcon(":/FScreenRecorder.ico"));
+    app.setDesktopFileName("FScreenRecorder");
 
     MainWindow w;
     w.show();

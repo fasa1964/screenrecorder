@@ -32,6 +32,7 @@
 #endif
 
 #include <dialogvideolist.h>
+#include <formwidgetproccess.h>
 
 namespace Ui {
 class MainWindow;
@@ -90,6 +91,11 @@ private:
     QProcess *infoProcess;
     QProcess *cutProcess;
 
+    // Test widget proccess
+    QProcess *widgetProccess;
+    QThread *widgetThread;
+    FormWidgetProccess *widget;
+
     // Take care of record time
     // ffmpeg stop recording video by -t duration
     // but audio keeps recording
@@ -108,10 +114,6 @@ private:
     QWinTaskbarProgress *taskbarProgress;
 #endif
 
-//#ifdef Q_OS_LINUX
-//    QX11TaskbarControl *taskbarControl;
-
-//#endif
 
     QString platform;
     void setPlatformInfo();

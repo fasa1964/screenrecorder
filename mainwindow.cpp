@@ -37,6 +37,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->timelineSlider->setTextColor(Qt::blue);
     ui->timelineSlider->update();
 
+
+    // Test widget proccess
+    widget = new FormWidgetProccess();
+    widgetProccess = new QProcess( widget );
+    widget->show();
+
+
     // Timer for record duration
     recordTimer = new QTimer(this);
 

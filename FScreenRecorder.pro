@@ -40,18 +40,21 @@ SOURCES += \
         mainwindow.cpp \
     dialogvideolist.cpp \
     dialoginfo.cpp \
-    slidertwohandle.cpp
+    slidertwohandle.cpp \
+    formwidgetproccess.cpp
 
 HEADERS += \
         mainwindow.h \
     dialogvideolist.h \
     dialoginfo.h \
-    slidertwohandle.h
+    slidertwohandle.h \
+    formwidgetproccess.h
 
 FORMS += \
         mainwindow.ui \
     dialogvideolist.ui \
-    dialoginfo.ui
+    dialoginfo.ui \
+    formwidgetproccess.ui
 
 RESOURCES += \
     images.qrc
