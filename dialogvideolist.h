@@ -22,6 +22,7 @@ public:
 private slots:
 
     void itemClicked(QListWidgetItem */*item*/);
+    void videoNameEditTextChanged(const QString &text);
 
 private:
     Ui::DialogVideoList *ui;

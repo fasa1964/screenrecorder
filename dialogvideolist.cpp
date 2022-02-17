@@ -12,6 +12,7 @@ DialogVideoList::DialogVideoList(const QStringList &availableVideos, QWidget *pa
     connect(ui->cancelButton, &QPushButton::clicked, this, &DialogVideoList::reject);
     connect(ui->applyButton, &QPushButton::clicked, this, &DialogVideoList::accept);
     connect(ui->listWidget, &QListWidget::itemClicked, this, &DialogVideoList::itemClicked);
+    connect(ui->videoNameEdit, &QLineEdit::textChanged, this, &DialogVideoList::videoNameEditTextChanged);
 }
 
 DialogVideoList::~DialogVideoList()
@@ -36,6 +37,14 @@ void DialogVideoList::itemClicked(QListWidgetItem */*item*/)
     else
         ui->applyButton->setEnabled(true);
 
+}
+
+void DialogVideoList::videoNameEditTextChanged(const QString &text)
+{
+    if(selectedItems().count() > 1 && !text.isEmpty())
+        ui->applyButton->setEnabled(true);
+    else
+        ui->applyButton->setEnabled(false);
 }
 
 void DialogVideoList::setupListWidget(const QStringList &vList)
