@@ -462,8 +462,8 @@ void MainWindow::recordProcessStateChanged(QProcess::ProcessState status)
     if(status == QProcess::Running){
         ui->statusBar->showMessage("Process is running!");
         ui->recordButton->setText("stop");
-        ui->recordButton->setToolTip("Click for stop recording.\nShortcut [Ctrl+p]");
-        ui->recordButton->setShortcut(QKeySequence("Ctrl+p"));
+        ui->recordButton->setToolTip("Click for stop recording.\nShortcut [Ctrl+S]");
+        ui->recordButton->setShortcut(QKeySequence("Ctrl+S"));
         ui->recordButton->setIcon(QIcon(":/record.ico"));
 
 #ifdef Q_OS_WIN32
@@ -489,8 +489,8 @@ void MainWindow::recordProcessStateChanged(QProcess::ProcessState status)
     if(status == QProcess::NotRunning){
         ui->statusBar->showMessage("Process not running!");
         ui->recordButton->setText("record");
-        ui->recordButton->setToolTip("Click for starting recording.\nShortcut [Ctrl+s]");
-        ui->recordButton->setShortcut(QKeySequence("Ctrl+s"));
+        ui->recordButton->setToolTip("Click for starting recording.\nShortcut [Ctrl+R]");
+        ui->recordButton->setShortcut(QKeySequence("Ctrl+R"));
         ui->recordButton->setIcon(QIcon(":/start.ico"));
 
 #ifdef Q_OS_WIN32

@@ -5,7 +5,7 @@
 //
 // Add spin box to obtain the number of clips. - solved
 //
-// Add hotkey and mousclick recorder.
+// Add hotkey and mousclick for recording.
 //
 // Add a desktop icon for application. - solved
 //
@@ -23,8 +23,10 @@
 //
 // On windows desktop no qbutton icon is visible.
 //
-// Insert pause button for pausing recording
+// Insert pause button for pausing recording.
 //
-// Insert a rectangle for custom size recording
+// Insert a rectangle for custom size recording.
+//
+//
 
 
