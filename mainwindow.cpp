@@ -231,6 +231,13 @@ void MainWindow::infoButtonClicked()
 
 void MainWindow::mergeButtonClicked()
 {
+
+    // Check if still recording
+    if(recordProcess->state() == QProcess::Running){
+        QMessageBox::information(this, tr("Merge videos"), tr("You have to stop recording, before you can merge videos!"));
+        return;
+    }
+
     // Get available videos
     QStringList filters;
     filters << "*." + ui->videoFormatBox->currentText();
@@ -502,7 +509,10 @@ void MainWindow::recordProcessStateChanged(QProcess::ProcessState status)
 void MainWindow::processFinished(int exitCode, QProcess::ExitStatus status)
 {
     if(exitCode == 0 && status == QProcess::NormalExit){
-        ui->statusBar->showMessage("Process successful finished!");
+        if(merging)
+            ui->statusBar->showMessage("Merging videos successful finished!", 5000);
+        else
+            ui->statusBar->showMessage("Process successful finished!", 5000);
 
         if(recordTimer->isActive())
             recordTimer->stop();

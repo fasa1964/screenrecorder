@@ -27,6 +27,6 @@
 //
 // Insert a rectangle for custom size recording.
 //
+// Create a independent widget for showing the recordtime
 //
-
 
