@@ -19,7 +19,12 @@
 //
 // Developing source code cross friendly win/linux.
 //
-// On windows desktop no audio input device is detected.
+// On windows desktop no audio input device is detected. - solved
 //
 // On windows desktop no qbutton icon is visible.
+//
+// Insert pause button for pausing recording
+//
+// Insert a rectangle for custom size recording
+
 

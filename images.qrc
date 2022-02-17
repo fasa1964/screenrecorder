@@ -11,5 +11,9 @@
         <file>start.ico</file>
         <file>record.ico</file>
         <file>FScreenRecorder.ico</file>
+        <file>screenrecorder-info.png</file>
+        <file>screenrecorder-ok.png</file>
+        <file>scrrenrecprder-on-off.png</file>
+        <file>sreenrecorder-close.ico</file>
     </qresource>
 </RCC>

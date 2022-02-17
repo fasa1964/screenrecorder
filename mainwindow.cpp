@@ -37,13 +37,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->timelineSlider->setTextColor(Qt::blue);
     ui->timelineSlider->update();
 
-
-    // Test widget proccess
-    widget = new FormWidgetProccess();
-    widgetProccess = new QProcess( widget );
-    widget->show();
-
-
     // Timer for record duration
     recordTimer = new QTimer(this);
 
@@ -226,6 +219,7 @@ void MainWindow::recordButtonClicked()
 
     recordProcess->start(programm, argumentList);
 
+
 }
 
 void MainWindow::infoButtonClicked()
@@ -386,6 +380,7 @@ void MainWindow::timeout()
             recordProcess->write("q\n");
     }
 
+
 #ifdef Q_OS_WIN32
     taskbarProgress->setValue(elapsedSeconds);
 #endif
@@ -423,7 +418,6 @@ void MainWindow::readyReadStandardOutput()
             QString textTime = getText(s, "time=", ' ');
             QString elapsed = "[" + QString::number(elapsedSeconds,10) + "]";
             ui->statusBar->showMessage("recording: "+textTime+":"+elapsed);
-
         }
 
         if(s.contains("Overwrite?") || s.contains("[y/N]")){

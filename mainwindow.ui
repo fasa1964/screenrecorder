@@ -32,8 +32,8 @@
        <widget class="QPushButton" name="infoButton">
         <property name="minimumSize">
          <size>
-          <width>84</width>
-          <height>34</height>
+          <width>0</width>
+          <height>0</height>
          </size>
         </property>
         <property name="palette">
@@ -75,6 +75,16 @@
         </property>
         <property name="text">
          <string>&amp;info</string>
+        </property>
+        <property name="icon">
+         <iconset resource="images.qrc">
+          <normaloff>:/screenrecorder-info.png</normaloff>:/screenrecorder-info.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
         </property>
        </widget>
       </item>
@@ -177,6 +187,12 @@
          <iconset resource="images.qrc">
           <normaloff>:/start.ico</normaloff>:/start.ico</iconset>
         </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
         <property name="shortcut">
          <string>Ctrl+R</string>
         </property>
@@ -223,6 +239,16 @@
         </property>
         <property name="text">
          <string>&amp;close</string>
+        </property>
+        <property name="icon">
+         <iconset resource="images.qrc">
+          <normaloff>:/scrrenrecprder-on-off.png</normaloff>:/scrrenrecprder-on-off.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
         </property>
        </widget>
       </item>
