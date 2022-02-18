@@ -30,7 +30,7 @@
 // Create a independent widget for showing the recordtime
 // or the countdown when starting recording
 //
-// Create new button icons for this application
+// Create new button icons for this application - solved
 //
 // Fix the cut handle duration time when select a video - solved
 //

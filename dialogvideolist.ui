@@ -140,6 +140,10 @@
      <property name="text">
       <string>&amp;cancel</string>
      </property>
+     <property name="icon">
+      <iconset resource="images.qrc">
+       <normaloff>:/screenrecorder-cancel.png</normaloff>:/screenrecorder-cancel.png</iconset>
+     </property>
     </widget>
    </item>
    <item row="4" column="2">
@@ -187,6 +191,10 @@
      <property name="text">
       <string>&amp;apply</string>
      </property>
+     <property name="icon">
+      <iconset resource="images.qrc">
+       <normaloff>:/screenrecorder-ok.png</normaloff>:/screenrecorder-ok.png</iconset>
+     </property>
     </widget>
    </item>
    <item row="2" column="0" colspan="3">
@@ -194,6 +202,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="images.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -136,6 +136,16 @@
         <property name="text">
          <string>&amp;merge clips</string>
         </property>
+        <property name="icon">
+         <iconset resource="images.qrc">
+          <normaloff>:/screenrecorder-merge.png</normaloff>:/screenrecorder-merge.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
        </widget>
       </item>
       <item>
@@ -242,7 +252,7 @@
         </property>
         <property name="icon">
          <iconset resource="images.qrc">
-          <normaloff>:/scrrenrecprder-on-off.png</normaloff>:/scrrenrecprder-on-off.png</iconset>
+          <normaloff>:/screenrecorder-close.png</normaloff>:/screenrecorder-close.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -257,7 +267,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -662,6 +672,10 @@ Less value better quality larger file</string>
             </property>
             <property name="text">
              <string>&amp;cut</string>
+            </property>
+            <property name="icon">
+             <iconset resource="images.qrc">
+              <normaloff>:/screenrecorder-cut.png</normaloff>:/screenrecorder-cut.png</iconset>
             </property>
            </widget>
           </item>

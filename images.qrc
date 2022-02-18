@@ -13,7 +13,9 @@
         <file>FScreenRecorder.ico</file>
         <file>screenrecorder-info.png</file>
         <file>screenrecorder-ok.png</file>
-        <file>scrrenrecprder-on-off.png</file>
-        <file>sreenrecorder-close.ico</file>
+        <file>screenrecorder-cancel.png</file>
+        <file>screenrecorder-close.png</file>
+        <file>screenrecorder-cut.png</file>
+        <file>screenrecorder-merge.png</file>
     </qresource>
 </RCC>
