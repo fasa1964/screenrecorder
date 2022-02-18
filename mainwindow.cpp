@@ -51,11 +51,12 @@ MainWindow::MainWindow(QWidget *parent) :
          [=](int exitCode, QProcess::ExitStatus exitStatus){ processFinished(exitCode, exitStatus); });
 
 
-
+    // info process is the merge tool process
     infoProcess = new QProcess(this);
     infoProcess->setProcessChannelMode(QProcess::MergedChannels);
     connect(infoProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::readyReadInfoStandardOutput);
 
+    // cut process is the cut process
     cutProcess = new QProcess(this);
     cutProcess->setProcessChannelMode(QProcess::MergedChannels);
     connect(cutProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
@@ -130,7 +131,7 @@ void MainWindow::recordButtonClicked()
     ui->processOutputText->clear();
 
 
-    // Define the programm with path
+    // Define the programm with path (ffprobe is inside in ffmpeg til 2022)
     QString programm = ui->ffmpegPathEdit->text();
     QStringList argumentList;
 
@@ -356,9 +357,10 @@ void MainWindow::itemClicked(QListWidgetItem *item)
 
     QString programm = ui->ffmpegPathEdit->text();
 
-#ifdef Q_OS_WIN32
-    programm.replace("ffmpeg.exe", "ffprobe.exe");
-#endif
+// Out of date no ffprobe anymore
+//#ifdef Q_OS_WIN32
+//    programm.replace("ffmpeg.exe", "ffprobe.exe");
+//#endif
 
 #ifdef Q_OS_LINUX
     programm.replace("ffmpeg", "ffprobe");
@@ -368,9 +370,11 @@ void MainWindow::itemClicked(QListWidgetItem *item)
     // mp4 -> width, height, r_frame_rate, start_time, duration
 
     QStringList argumentList;
-    argumentList << "-v" << "error"
-                 << "-show_format"
-                 << videofile;
+    argumentList //<< "-v" << "error"
+                 //<< "-show_format"
+                 <<"-i"
+                 << videofile
+                 << "-f" << "null-";
 
     infoProcess->start(programm, argumentList);
 
@@ -548,23 +552,30 @@ void MainWindow::cutProcessFinished(int exitCode, QProcess::ExitStatus status)
     }
 }
 
+/// !brief When selecting video in the tool panel
+/// check for start and duration but video and audio
+/// is not specify yet
 void MainWindow::readyReadInfoStandardOutput()
 { 
     QByteArray array = infoProcess->readAllStandardOutput();
     QString text(array);
     QStringList list = text.split("\n");
     foreach (QString s, list) {
+        //qDebug() << "String s=" << s;
 
-        if(s.contains("start_time")){
-           double min = getText( s, "start_time=", '\r').toDouble();
+        if(s.contains("start")){
+           double min = getText( s, "start", '\r').toDouble();
            ui->startSecBox->setValue( static_cast<int>(min) );
            ui->timelineSlider->setMinimum( min );
+           //qDebug()<< "start found in:" << s;
         }
 
-        if(s.contains("duration")){
+        if(s.contains("DURATION")){
             double max =  getDuration(s);
             ui->endSecBox->setValue( static_cast<int>(max) );
             ui->timelineSlider->setMaximum( max );
+//            qDebug() << "DURATION found in:" << s;
+//            qDebug() << "Max:" << max;
         }
     }
 
@@ -653,10 +664,11 @@ QString MainWindow::getText(const QString &sourceText, const QString &fromText, 
     return text;
 }
 
+/// !brief Returns the duration in seconds
 double MainWindow::getDuration(const QString &s)
 {
     double value = 0.0;
-    QStringList slist = s.split("duration=");
+    QStringList slist = s.split(":");
     value += slist.last().toDouble();
     return value;
 }

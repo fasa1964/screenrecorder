@@ -670,6 +670,16 @@ Less value better quality larger file</string>
         <item row="0" column="0" colspan="3">
          <widget class="QListWidget" name="videoListWidget"/>
         </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>FScreenRecorder will make a copy of the original video.</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </widget>

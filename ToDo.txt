@@ -21,12 +21,21 @@
 //
 // On windows desktop no audio input device is detected. - solved
 //
-// On windows desktop no qbutton icon is visible.
+// On windows desktop no button icon is visible.
 //
 // Insert pause button for pausing recording.
 //
 // Insert a rectangle for custom size recording.
 //
 // Create a independent widget for showing the recordtime
+// or the countdown when starting recording
+//
+// Create new button icons for this application
+//
+// Fix the cut handle duration time when select a video - solved
+//
+// Fix cut tool for duration time - solved
+//
+// Add in the ListWidgetVideo (tool panel) the new cut/record video
 //
 
