@@ -21,6 +21,9 @@
 #include <QNetworkReply>
 #include <QEvent>
 
+/// !brief Test widget style option
+#include <formmessagewidget.h>
+
 #ifdef Q_OS_WIN32
     #include <QWinTaskbarProgress>
     #include <QWinTaskbarButton>
@@ -60,6 +63,10 @@ private slots:
 
     void ffmpegPathButtonClicked();
     void outputPathButtonClicked();
+
+    // Signal from device tab
+    void deviceSelectionChanged(const QString &text);
+    void sliderValueChanged(int);
 
     // For the tools tab
     void tabIndexChanged(int index);
@@ -102,6 +109,11 @@ private:
     bool merging;           // status for merging recorded videos
 
 
+    // Test FormMessageWidget for another style
+    // and thread
+    FormMessageWidget *testWidget;
+
+
     // When recording an application is minimized
     // show button and progress for record time
     // Only for windows
@@ -117,6 +129,7 @@ private:
     // For the tools tab
     void updateVideoListWidget();
 
+    QString getVideoName();
     QStringList availableVideos(QDir dir, const QStringList &filters);
     QString getText(const QString &sourceText, const QString &fromText, const QChar &tilChar);
     double getDuration(const QString &s);

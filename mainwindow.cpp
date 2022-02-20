@@ -24,6 +24,10 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle("FScreenRecord");
     setWindowIcon(QIcon(":/FScreenRecorder.ico"));
 
+    // Test FormMessageWidget for another style
+    // and thread
+    testWidget = new FormMessageWidget();
+
     setPlatformInfo();
     readSettings();
 
@@ -36,6 +40,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->timelineSlider->setSelectedColor( Qt::yellow );
     ui->timelineSlider->setTextColor(Qt::blue);
     ui->timelineSlider->update();
+    ui->frameDeviceRectangle->hide();
+
+
 
     // Timer for record duration
     recordTimer = new QTimer(this);
@@ -81,6 +88,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->timelineSlider, &SliderTwoHandle::leftValueChanged, this, &MainWindow::handleSliderLeftValueChanged);
     connect(ui->timelineSlider, &SliderTwoHandle::rightValueChanged, this, &MainWindow::handleSliderRightValueChanged);
 
+    // for the device panel
+    connect(ui->videoDeviceBox, &QComboBox::currentTextChanged, this, &MainWindow::deviceSelectionChanged);
+    connect(ui->heightSlider, &QSlider::valueChanged, this, &MainWindow::sliderValueChanged);
+    connect(ui->widthSlider, &QSlider::valueChanged, this, &MainWindow::sliderValueChanged);
+    connect(ui->xPosSlider , &QSlider::valueChanged, this, &MainWindow::sliderValueChanged);
+    connect(ui->yPosSlider , &QSlider::valueChanged, this, &MainWindow::sliderValueChanged);
+
     installEventFilter(this);
 
 #ifdef Q_OS_WIN32
@@ -100,6 +114,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeButtonClicked()
 {
+
     if(recordProcess->state() == QProcess::Running){
         QMessageBox::information(this, tr("Process"), tr("Process is still running.\n"
         "Please, stop recording before closing this application!"));
@@ -111,6 +126,12 @@ void MainWindow::closeButtonClicked()
 
     if(recordTimer != nullptr)
         recordTimer->deleteLater();
+
+    // Test testWidget for style
+    if(testWidget != nullptr){
+        if(!testWidget->isHidden())
+            testWidget->close();
+    }
 
     saveSettings();
     close();
@@ -129,6 +150,9 @@ void MainWindow::recordButtonClicked()
 
     // Clear output text
     ui->processOutputText->clear();
+
+    // Hide text inside the rectangle
+    testWidget->setShowText(false);
 
 
     // Define the programm with path (ffprobe is inside in ffmpeg til 2022)
@@ -179,23 +203,51 @@ void MainWindow::recordButtonClicked()
     QString seconds =  QString::number( QTime(0,0,0).secsTo(ui->timeEdit->time()),10); // record duration in sec
     durationSeconds = QTime(0,0,0).secsTo(ui->timeEdit->time());
 
+    // Try to use rectangle for screen record
+    //<< "-offset_x" <<"200" << "-offset_y" << "200" << "-video_size" << "vga" // is working as vga size
+    //<< "-offset_x" <<"200" << "-offset_y" << "200" << "-video_size" << "1440:900" // is working as custom size
+    //<< "-show_region" << "1"// show region not working
+
     if(platform == "windows"){
 
-        argumentList << "-rtbufsize" << "1500M"
-                     << "-f" << "dshow"
-                     << "-i" << "audio=" + audioDevice
-                     << "-f" << "-y" << "-rtbufsize" << "100M"
-                     << "-f" << videoGrab
-                     << "-t" << seconds
-                     << "-framerate" << fps
-                     << "-probesize" << "10M"
-                     << "-draw_mouse" << "1"
-                     << "-i" << videoDevice // "desktop" default
-                     << "-c:v" << "libx264"
-                     << "-r" << fps << "-preset" << "ultrafast"
-                     << "-tune" << "zerolatency"
-                     << "-crf" << crf << "-pix_fmt" << "yuv420p"
-                     << output;
+        if(ui->videoDeviceBox->currentText() == "rectangle"){
+
+            argumentList << "-rtbufsize" << "1500M"
+                         << "-f" << "dshow"
+                         << "-i" << "audio=" + audioDevice
+                         << "-f" << "-y" << "-rtbufsize" << "100M"
+                         << "-f" << videoGrab
+                         << "-t" << seconds
+                         << "-framerate" << fps
+                         << "-probesize" << "10M"
+                         << "-draw_mouse" << "1"
+                         << "-offset_x" << QString("%1").arg(ui->xPosSlider->value(),10)
+                         << "-offset_y" <<QString("%1").arg(ui->yPosSlider->value(),10)
+                         << "-video_size" <<  QString("%1").arg(ui->widthSlider->value(),10) + ":" +  QString("%1").arg(ui->heightSlider->value(),10)   // e. g. "960:680"
+                         << "-i" << videoDevice // "desktop" default
+                         << "-c:v" << "libx264"
+                         << "-r" << fps << "-preset" << "ultrafast"
+                         << "-tune" << "zerolatency"
+                         << "-crf" << crf << "-pix_fmt" << "yuv420p"
+                         << output;
+        }
+        else{
+            argumentList << "-rtbufsize" << "1500M"
+                         << "-f" << "dshow"
+                         << "-i" << "audio=" + audioDevice
+                         << "-f" << "-y" << "-rtbufsize" << "100M"
+                         << "-f" << videoGrab
+                         << "-t" << seconds
+                         << "-framerate" << fps
+                         << "-probesize" << "10M"
+                         << "-draw_mouse" << "1"
+                         << "-i" << videoDevice // "desktop" default
+                         << "-c:v" << "libx264"
+                         << "-r" << fps << "-preset" << "ultrafast"
+                         << "-tune" << "zerolatency"
+                         << "-crf" << crf << "-pix_fmt" << "yuv420p"
+                         << output;
+        }
 
     }
 
@@ -330,6 +382,33 @@ void MainWindow::outputPathButtonClicked()
     QDir::setCurrent( outputpath );
 }
 
+
+void MainWindow::deviceSelectionChanged(const QString &text)
+{
+    if(text == "rectangle"){
+        ui->frameDeviceRectangle->show();
+        testWidget->show();
+    }
+    else {
+        ui->frameDeviceRectangle->hide();
+        testWidget->hide();
+    }
+}
+
+void MainWindow::sliderValueChanged(int /*value*/)
+{
+    ui->valueX->setText( QString("%1").arg(ui->xPosSlider->value(),10 ) );
+    ui->valueY->setText( QString("%1").arg(ui->yPosSlider->value(),10 ) );
+    ui->valueWidth->setText( QString("%1").arg(ui->widthSlider->value(),10 ) );
+    ui->valueHeight->setText( QString("%1").arg(ui->heightSlider->value(),10 ) );
+
+
+    testWidget->setPos(ui->xPosSlider->value(), ui->yPosSlider->value());
+    testWidget->setGeometry(ui->xPosSlider->value() ,  ui->yPosSlider->value() ,  ui->widthSlider->value(), ui->heightSlider->value());
+    testWidget->setRect( QRect(0 , 0 ,  ui->widthSlider->value(), ui->heightSlider->value()) );
+
+}
+
 /// !brief Update videos when tab tools was selected
 void MainWindow::tabIndexChanged(int index)
 {
@@ -390,6 +469,11 @@ void MainWindow::timeout()
         if(recordProcess->state() == QProcess::Running)
             recordProcess->write("q\n");
     }
+
+    // Test widget is working
+//    QString counter = QString::number(elapsedSeconds);
+//    testWidget->setLabelText(counter);
+
 
 
 #ifdef Q_OS_WIN32
@@ -534,6 +618,7 @@ void MainWindow::processFinished(int exitCode, QProcess::ExitStatus status)
 
     if(exitCode == 1 && status == QProcess::CrashExit){
         QMessageBox::warning(this, tr("Error"), tr("Process error occured:\n")+recordProcess->errorString());
+        qDebug() << "Crashed wile recording:" << recordProcess->errorString();
         return;
     }
 
@@ -621,6 +706,14 @@ void MainWindow::updateVideoListWidget()
         item->setCheckState(Qt::Unchecked);
         ui->videoListWidget->addItem(item);
     }
+}
+
+///!brief Get the current videoname including nr of video
+QString MainWindow::getVideoName()
+{
+    QString nrs = QString("%1%2").arg(QString::number(ui->nrBox->value(),10),2,'0').arg(ui->outputEdit->text());
+    QString output =  nrs + "." + ui->videoFormatBox->currentText();
+    return output;
 }
 
 QStringList MainWindow::availableVideos(QDir dir, const QStringList &filters)
@@ -752,7 +845,16 @@ void MainWindow::readSettings()
     foreach(QScreen *s, screenList)
         screeNames << s->name();
 
-    ui->videoDeviceBox->addItems(QStringList() << "desktop" <<  screeNames );
+    ui->videoDeviceBox->addItems(QStringList() << "desktop" <<  screeNames << "rectangle" );
+
+    // Test read first screen geometry
+    int w = screenList.first()->availableGeometry().width();
+    int h = screenList.first()->availableGeometry().height();
+
+    ui->widthSlider->setRange(0, w);
+    ui->heightSlider->setRange(0,h);
+    ui->xPosSlider->setRange(0,w);
+    ui->yPosSlider->setRange(0,h);
 
     // Audio
     int index = 0;
@@ -772,6 +874,35 @@ void MainWindow::readSettings()
     ui->tabWidget->setCurrentIndex(0);
     this->setGeometry( settings.value("geometrie", QRectF(0,0,400,500)).toRect() );
 
+
+    // Set the last videoname and nr
+    bool ok;
+    int nr = settings.value("nrvideo", 0).toInt(&ok);
+    ui->nrBox->setValue(nr);
+
+    QString vname = settings.value("videoname", "").toString();
+    ui->outputEdit->setText(vname);
+
+
+
+    if(testWidget != nullptr){
+
+        int x = settings.value("xpos",0).toInt(&ok);  Q_ASSERT(ok);
+        int y = settings.value("ypos",0).toInt(&ok);  Q_ASSERT(ok);
+        int w = settings.value("width",800).toInt(&ok);  Q_ASSERT(ok);
+        int h = settings.value("height",680).toInt(&ok);  Q_ASSERT(ok);
+
+
+        testWidget->setGeometry(0,0,w,h);
+        testWidget->setRect( QRect( 0, 0, w, h ));
+        testWidget->setPos( x, y );
+
+        ui->xPosSlider->setValue(x);
+        ui->yPosSlider->setValue(y);
+        ui->widthSlider->setValue(w);
+        ui->heightSlider->setValue(h);
+    }
+
 }
 
 void MainWindow::saveSettings()
@@ -786,6 +917,16 @@ void MainWindow::saveSettings()
     settings.setValue("videoframerate", ui->fpsBox->value());
     settings.setValue("videoquality", ui->crfBox->value());
     settings.setValue("geometrie", this->geometry());
+    settings.setValue("nrvideo", ui->nrBox->value());
+    settings.setValue("videoname", ui->outputEdit->text() );
+
+    if(testWidget != nullptr){
+        settings.setValue("xpos", testWidget->geometry().x() );
+        settings.setValue("ypos", testWidget->geometry().y() );
+        settings.setValue("width", testWidget->geometry().width() );
+        settings.setValue("height", testWidget->geometry().height() );
+    }
+
 }
 
 

@@ -8,6 +8,7 @@ QT      += core gui
 QT      += multimedia
 QT      += network
 
+
 win32:{
     QT      += winextras
 }
@@ -36,6 +37,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 RC_ICONS = FScreenRecorder.ico
 
 SOURCES += \
+    formmessagewidget.cpp \
         main.cpp \
         mainwindow.cpp \
     dialogvideolist.cpp \
@@ -43,12 +45,14 @@ SOURCES += \
     slidertwohandle.cpp
 
 HEADERS += \
+    formmessagewidget.h \
         mainwindow.h \
     dialogvideolist.h \
     dialoginfo.h \
     slidertwohandle.h
 
 FORMS += \
+    formmessagewidget.ui \
         mainwindow.ui \
     dialogvideolist.ui \
     dialoginfo.ui

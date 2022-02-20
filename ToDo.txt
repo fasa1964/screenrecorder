@@ -38,4 +38,5 @@
 //
 // Add in the ListWidgetVideo (tool panel) the new cut/record video
 //
-
+// Save the video name from last session - solved
+//
