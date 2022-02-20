@@ -40,3 +40,5 @@
 //
 // Save the video name from last session - solved
 //
+// Catch key and mousclick from global an print out to record screen
+//
