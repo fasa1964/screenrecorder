@@ -160,9 +160,9 @@ void MainWindow::recordButtonClicked()
     QStringList argumentList;
 
     // videoname = nr + videoname
-    QString nrs = QString("%1%2").arg(QString::number(ui->nrBox->value(),10),2,'0').arg(ui->outputEdit->text());
-    QString output =  nrs + "." + ui->videoFormatBox->currentText();
-
+//    QString nrs = QString("%1%2").arg(QString::number(ui->nrBox->value(),10),2,'0').arg(ui->outputEdit->text());
+//    QString output =  nrs + "." + ui->videoFormatBox->currentText();
+    QString output = getVideoName();
 
     QString videoDevice;
     QString audioDevice;
@@ -901,6 +901,11 @@ void MainWindow::readSettings()
         ui->yPosSlider->setValue(y);
         ui->widthSlider->setValue(w);
         ui->heightSlider->setValue(h);
+
+        ui->valueX->setText( QString("%1").arg(x,10));
+        ui->valueY->setText( QString("%1").arg(y,10));
+        ui->valueWidth->setText( QString("%1").arg(w,10));
+        ui->valueHeight->setText( QString("%1").arg(h,10));
     }
 
 }

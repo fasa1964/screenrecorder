@@ -21,6 +21,9 @@
 #include <QNetworkReply>
 #include <QEvent>
 
+//#include <QxtGlobalShortcut>
+
+
 /// !brief Test widget style option
 #include <formmessagewidget.h>
 

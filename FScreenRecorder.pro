@@ -7,6 +7,7 @@
 QT      += core gui
 QT      += multimedia
 QT      += network
+#QT      += qxt
 
 
 win32:{
