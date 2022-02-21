@@ -42,3 +42,6 @@
 //
 // Catch key and mousclick from global an print out to record screen
 //
+// When recording failed open messagsbox and the application window - solved
+//
+//
