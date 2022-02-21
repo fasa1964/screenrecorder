@@ -503,6 +503,12 @@ void MainWindow::readyReadStandardOutput()
         // Error has detected
         if(s.contains("Error") || s.contains("error")){
             ui->processOutputText->append( s );
+
+            if(s.contains("width") || s.contains("height")){
+                ui->processOutputText->append("\nTry to reduce the height or width from rectangle!");
+                s.append("\nTry to reduce the height or width from rectangle!");
+            }
+            setWindowState(Qt::WindowActive);
             QMessageBox::warning(this, tr("Error"), tr("FFMPEG failed because:\n")+s);
             return;
         }
@@ -646,21 +652,17 @@ void MainWindow::readyReadInfoStandardOutput()
     QString text(array);
     QStringList list = text.split("\n");
     foreach (QString s, list) {
-        //qDebug() << "String s=" << s;
 
         if(s.contains("start")){
            double min = getText( s, "start", '\r').toDouble();
            ui->startSecBox->setValue( static_cast<int>(min) );
            ui->timelineSlider->setMinimum( min );
-           //qDebug()<< "start found in:" << s;
         }
 
         if(s.contains("DURATION")){
             double max =  getDuration(s);
             ui->endSecBox->setValue( static_cast<int>(max) );
             ui->timelineSlider->setMaximum( max );
-//            qDebug() << "DURATION found in:" << s;
-//            qDebug() << "Max:" << max;
         }
     }
 
