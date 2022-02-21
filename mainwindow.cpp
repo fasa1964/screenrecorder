@@ -565,7 +565,8 @@ void MainWindow::recordProcessStateChanged(QProcess::ProcessState status)
         ui->recordButton->setText("stop");
         ui->recordButton->setToolTip("Click for stop recording.\nShortcut [Ctrl+S]");
         ui->recordButton->setShortcut(QKeySequence("Ctrl+S"));
-        ui->recordButton->setIcon(QIcon(":/record.ico"));
+        ui->recordButton->setIcon(QIcon(":/screenrecorder-record.png"));
+        //ui->recordButton->setIcon(QIcon(":/screenrecorder-record.png"));
 
 #ifdef Q_OS_WIN32
         taskbarButton->setOverlayIcon(QIcon(":/record.ico"));
@@ -592,10 +593,10 @@ void MainWindow::recordProcessStateChanged(QProcess::ProcessState status)
         ui->recordButton->setText("record");
         ui->recordButton->setToolTip("Click for starting recording.\nShortcut [Ctrl+R]");
         ui->recordButton->setShortcut(QKeySequence("Ctrl+R"));
-        ui->recordButton->setIcon(QIcon(":/start.ico"));
+        ui->recordButton->setIcon(QIcon(":/screenrecorder-play.png"));
 
 #ifdef Q_OS_WIN32
-        taskbarButton->setOverlayIcon(QIcon(":/start.ico"));
+        taskbarButton->setOverlayIcon(QIcon(":/screenrecorder-play.png"));
 #endif
     }
 }

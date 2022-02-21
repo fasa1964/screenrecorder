@@ -5,7 +5,7 @@
 //
 // Add spin box to obtain the number of clips. - solved
 //
-// Add hotkey and mousclick for recording.
+// Add assecc hotkey and mousclick for recording.
 //
 // Add a desktop icon for application. - solved
 //
@@ -25,12 +25,12 @@
 //
 // Insert pause button for pausing recording.
 //
-// Insert a rectangle for custom size recording.
+// Insert a rectangle for custom size recording. - solved
 //
 // Create a independent widget for showing the recordtime
 // or the countdown when starting recording
 //
-// Create new button icons for this application - solved
+// Create new 3d button icons for this application
 //
 // Fix the cut handle duration time when select a video - solved
 //

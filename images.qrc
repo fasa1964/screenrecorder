@@ -17,5 +17,7 @@
         <file>screenrecorder-close.png</file>
         <file>screenrecorder-cut.png</file>
         <file>screenrecorder-merge.png</file>
+        <file>screenrecorder-play.png</file>
+        <file>screenrecorder-record.png</file>
     </qresource>
 </RCC>

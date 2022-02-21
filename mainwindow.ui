@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>596</width>
-    <height>464</height>
+    <width>599</width>
+    <height>483</height>
    </rect>
   </property>
   <property name="font">
@@ -195,7 +195,7 @@
         </property>
         <property name="icon">
          <iconset resource="images.qrc">
-          <normaloff>:/start.ico</normaloff>:/start.ico</iconset>
+          <normaloff>:/screenrecorder-play.png</normaloff>:/screenrecorder-play.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -544,6 +544,12 @@ Less value better quality larger file</string>
            </item>
            <item row="0" column="2">
             <widget class="QLabel" name="valueX">
+             <property name="minimumSize">
+              <size>
+               <width>40</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="palette">
               <palette>
                <active>
