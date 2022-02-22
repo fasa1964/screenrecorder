@@ -5,17 +5,22 @@
 #-------------------------------------------------
 
 QT      += core gui
-QT      += multimedia
+#QT      += multimedia
 QT      += network
 #QT      += qxt
 
 
-win32:{
-    QT      += winextras
-}
+lessThan(QT_MAJOR_VERSION, 6): QT += winextras
+lessThan(QT_MAJOR_VERSION, 6): QT += multimedia
+
+#win32:{
+#    QT      += winextras
+#}
+
 
 linux:{
     QT      += dbus
+    QT      += multimedia
 }
 
 

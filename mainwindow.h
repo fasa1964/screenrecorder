@@ -3,9 +3,14 @@
 
 #include <QMainWindow>
 #include <QScreen>
+#include <QtGlobal>
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QAudioRecorder>
 #include <QAudioDeviceInfo>
 #include <QMediaRecorder>
+#endif
+
 #include <QTimer>
 #include <QTime>
 #include <QMap>
@@ -27,10 +32,18 @@
 /// !brief Test widget style option
 #include <formmessagewidget.h>
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #ifdef Q_OS_WIN32
     #include <QWinTaskbarProgress>
     #include <QWinTaskbarButton>
 #endif
+#endif
+
+
+//#ifdef Q_OS_WIN64
+//#include <QWinTaskbarProgress>
+//#include <QWinTaskbarButton>
+//#endif
 
 #ifdef Q_OS_LINUX
     #include <QDBusMessage>
@@ -63,6 +76,9 @@ private slots:
     void infoButtonClicked();
     void mergeButtonClicked();
     void cutButtonClicked();
+
+    // Test AudioDevice adding maualy
+    void addAudioDeviceButtonClicked();
 
     void ffmpegPathButtonClicked();
     void outputPathButtonClicked();
@@ -101,6 +117,11 @@ private:
     QProcess *infoProcess;
     QProcess *cutProcess;
 
+    // Test AudioDevice adding maualy
+    // Set the widgets hidden or showing
+    // depend on AudioDeviceInfo
+    void setManualAudioEditVisible(bool visible);
+
 
     // Take care of record time
     // ffmpeg stop recording video by -t duration
@@ -120,9 +141,11 @@ private:
     // When recording an application is minimized
     // show button and progress for record time
     // Only for windows
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #ifdef Q_OS_WIN32
     QWinTaskbarButton *taskbarButton;
     QWinTaskbarProgress *taskbarProgress;
+#endif
 #endif
 
 

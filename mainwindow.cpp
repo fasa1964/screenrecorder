@@ -29,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
     testWidget = new FormMessageWidget();
 
     setPlatformInfo();
+    setManualAudioEditVisible(false);
     readSettings();
 
     durationSeconds = 0;
@@ -41,8 +42,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->timelineSlider->setTextColor(Qt::blue);
     ui->timelineSlider->update();
     ui->frameDeviceRectangle->hide();
-
-
 
     // Timer for record duration
     recordTimer = new QTimer(this);
@@ -95,13 +94,21 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->xPosSlider , &QSlider::valueChanged, this, &MainWindow::sliderValueChanged);
     connect(ui->yPosSlider , &QSlider::valueChanged, this, &MainWindow::sliderValueChanged);
 
+
+    // Test AudioDevice adding maualy
+    connect(ui->addAudioButton, &QToolButton::clicked, this, &MainWindow::addAudioDeviceButtonClicked);
+
+
     installEventFilter(this);
 
+// There is no -for me- a good solution in Qt 6.0
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #ifdef Q_OS_WIN32
     taskbarButton = new QWinTaskbarButton(this);
     taskbarButton->setOverlayIcon(QIcon(":/start.ico"));
     taskbarProgress = taskbarButton->progress();
     taskbarProgress->setVisible(true);
+#endif
 #endif
 
 }
@@ -160,8 +167,6 @@ void MainWindow::recordButtonClicked()
     QStringList argumentList;
 
     // videoname = nr + videoname
-//    QString nrs = QString("%1%2").arg(QString::number(ui->nrBox->value(),10),2,'0').arg(ui->outputEdit->text());
-//    QString output =  nrs + "." + ui->videoFormatBox->currentText();
     QString output = getVideoName();
 
     QString videoDevice;
@@ -361,6 +366,12 @@ void MainWindow::cutButtonClicked()
 
 }
 
+// Test AudioDevice adding maualy
+void MainWindow::addAudioDeviceButtonClicked()
+{
+    ui->audioDeviceBox->insertItem( ui->audioDeviceBox->count(), ui->audioDeviceEdit->text() );
+}
+
 /// !brief Get ffmpeg installed path including exe/bin
 void MainWindow::ffmpegPathButtonClicked()
 {
@@ -475,9 +486,10 @@ void MainWindow::timeout()
 //    testWidget->setLabelText(counter);
 
 
-
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #ifdef Q_OS_WIN32
     taskbarProgress->setValue(elapsedSeconds);
+#endif
 #endif
 
 }
@@ -525,8 +537,10 @@ void MainWindow::readyReadStandardOutput()
 
             if(recordTimer->isActive()){
                 recordTimer->stop();
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #ifdef Q_OS_WIN32
                 taskbarProgress->setPaused(true);
+#endif
 #endif
             }
 
@@ -541,16 +555,22 @@ void MainWindow::readyReadStandardOutput()
             if(result == QMessageBox::Yes){
                 recordProcess->write("y\n");
                 recordTimer->start(1000);
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #ifdef Q_OS_WIN32
                 taskbarProgress->setPaused(false);
+#endif
 #endif
             }
 
             // User abort recording
             if(result == QMessageBox::No){
                 recordProcess->write("N\n");
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #ifdef Q_OS_WIN32
                 taskbarProgress->stop();
+#endif
 #endif
             }
         }
@@ -568,8 +588,10 @@ void MainWindow::recordProcessStateChanged(QProcess::ProcessState status)
         ui->recordButton->setIcon(QIcon(":/screenrecorder-record.png"));
         //ui->recordButton->setIcon(QIcon(":/screenrecorder-record.png"));
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #ifdef Q_OS_WIN32
         taskbarButton->setOverlayIcon(QIcon(":/record.ico"));
+#endif
 #endif
 
     }
@@ -579,8 +601,10 @@ void MainWindow::recordProcessStateChanged(QProcess::ProcessState status)
         elapsedSeconds = 0;
         recordTimer->start(1000);
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #ifdef Q_OS_WIN32
         taskbarProgress->setRange(elapsedSeconds, durationSeconds);
+#endif
 #endif
 
         // Minimize window
@@ -595,8 +619,10 @@ void MainWindow::recordProcessStateChanged(QProcess::ProcessState status)
         ui->recordButton->setShortcut(QKeySequence("Ctrl+R"));
         ui->recordButton->setIcon(QIcon(":/screenrecorder-play.png"));
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #ifdef Q_OS_WIN32
         taskbarButton->setOverlayIcon(QIcon(":/screenrecorder-play.png"));
+#endif
 #endif
     }
 }
@@ -612,9 +638,11 @@ void MainWindow::processFinished(int exitCode, QProcess::ExitStatus status)
         if(recordTimer->isActive())
             recordTimer->stop();
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #ifdef Q_OS_WIN32
         taskbarButton->setOverlayIcon(QIcon(":/start.ico"));
         taskbarProgress->reset();
+#endif
 #endif
 
 
@@ -676,10 +704,22 @@ void MainWindow::checkUpdate()
     QMessageBox::information(this, tr("Update"), tr("Not implemented yet!"));
 }
 
+void MainWindow::setManualAudioEditVisible(bool visible)
+{
+    ui->labelaudio->setVisible(visible);
+    ui->audioDeviceEdit->setVisible(visible);
+    ui->audioDeviceEdit->setVisible(visible);
+    ui->saveCheckBox->setVisible(visible);
+    ui->addAudioButton->setVisible(visible);
+}
+
 void MainWindow::setPlatformInfo()
 {
     platform = "unknown";
 
+#ifdef Q_OS_WIN64
+    platform = "windows";
+#endif
 #ifdef Q_OS_WIN32
     platform = "windows";
 #endif
@@ -811,8 +851,10 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 /// !brief Get valid window handle
 void MainWindow::showEvent(QShowEvent *event)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #ifdef Q_OS_WIN32
     taskbarButton->setWindow( windowHandle() );
+#endif
 #endif
 
     event->accept();
@@ -860,6 +902,9 @@ void MainWindow::readSettings()
     ui->yPosSlider->setRange(0,h);
 
     // Audio
+    // Is working when starting from qt-creator but not when starting from desktop under windows
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     int index = 0;
     foreach (QAudioDeviceInfo device, QAudioDeviceInfo::availableDevices(QAudio::AudioInput))
     {
@@ -867,9 +912,20 @@ void MainWindow::readSettings()
           index++;
     }
 
+
     // Add the default audio input device input
     ui->audioDeviceBox->insertItem(ui->audioDeviceBox->count(), QAudioDeviceInfo::defaultInputDevice().deviceName());
+#endif
 
+    // If no audio device found automaticly
+    if(ui->audioDeviceBox->count() < 1)
+        setManualAudioEditVisible(true);
+
+
+    // If already an audiodevice name saved
+    QString audioDeviceName = settings.value("audiodevicename", "").toString();
+    if(!audioDeviceName.isEmpty())
+        ui->audioDeviceBox->addItem(0, audioDeviceName);
 
     // Default settings for video format
     ui->videoFormatBox->addItems(QStringList() << "mkv" << "mp4");
@@ -933,6 +989,10 @@ void MainWindow::saveSettings()
         settings.setValue("ypos", testWidget->geometry().y() );
         settings.setValue("width", testWidget->geometry().width() );
         settings.setValue("height", testWidget->geometry().height() );
+    }
+
+    if( ui->saveCheckBox->isChecked() ){
+        settings.setValue("audiodevice", ui->audioDeviceEdit->text());
     }
 
 }

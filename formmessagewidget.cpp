@@ -35,9 +35,17 @@ void FormMessageWidget::paintEvent(QPaintEvent */*event*/)
 
     // Setting paint color
     QPalette pal = this->palette();
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     pal.setColor(QPalette::Normal, QPalette::Foreground, QColor(Qt::red) );
     pal.setColor(QPalette::Inactive, QPalette::Foreground, QColor(Qt::red) );
+#else
+    pal.setColor(QPalette::Normal, QPalette::WindowText, QColor(Qt::red) );
+    pal.setColor(QPalette::Inactive, QPalette::WindowText, QColor(Qt::red) );
+#endif
+
     this->setPalette(pal);
+
 
     painter.drawRect(rect());
 

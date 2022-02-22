@@ -17,7 +17,7 @@
 // When window is resizing the right handle, from - solved
 // two handle slider, disappeared.
 //
-// Developing source code cross friendly win/linux.
+// Developing source code cross friendly win/linux and win64.
 //
 // On windows desktop no audio input device is detected. - solved
 //
@@ -44,4 +44,7 @@
 //
 // When recording failed open messagsbox and the application window - solved
 //
+// Find solution to access AudioDevice's for input in Qt 6.0
+//
+// Find solution for TaskBar under windows in Qt 6.0
 //
