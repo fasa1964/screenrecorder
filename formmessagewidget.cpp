@@ -7,6 +7,9 @@
 #include <QColor>
 #include <QString>
 #include <QFont>
+#include <QLayout>
+#include <QStyle>
+#include <QStyleFactory>
 
 FormMessageWidget::FormMessageWidget(QWidget *parent) :
     QWidget(parent),
@@ -16,11 +19,24 @@ FormMessageWidget::FormMessageWidget(QWidget *parent) :
 
     setShowText(true);
 
-    setAttribute(Qt::WA_TranslucentBackground, true);
-    setAttribute(Qt::WA_AlwaysStackOnTop, true);
-    setAttribute(Qt::WA_ShowWithoutActivating, true);
-    setWindowFlags(Qt::FramelessWindowHint|Qt::WindowStaysOnTopHint);
 
+
+    setAttribute(Qt::WA_TranslucentBackground, true);
+    //setAttribute(Qt::WA_AlwaysStackOnTop, true);
+    //setAttribute(Qt::WA_ShowWithoutActivating, true);
+
+
+    // Test
+    setAttribute(Qt::WA_NoSystemBackground, true);
+    setAttribute(Qt::WA_SetStyle, true);
+
+
+
+    setWindowFlags(Qt::FramelessWindowHint|Qt::WindowStaysOnTopHint);
+    //setWindowFlags(Qt::FramelessWindowHint);
+
+
+    this->setStyle( QStyleFactory::create("Fusion"));
 }
 
 FormMessageWidget::~FormMessageWidget()
@@ -30,6 +46,7 @@ FormMessageWidget::~FormMessageWidget()
 
 void FormMessageWidget::paintEvent(QPaintEvent */*event*/)
 {
+
 
     QPainter painter(this);
 

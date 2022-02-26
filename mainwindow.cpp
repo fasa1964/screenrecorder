@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
     testWidget = new FormMessageWidget();
 
     setPlatformInfo();
-    setManualAudioEditVisible(false);
+    //setManualAudioEditVisible(false);
     readSettings();
 
     durationSeconds = 0;
@@ -366,10 +366,11 @@ void MainWindow::cutButtonClicked()
 
 }
 
-// Test AudioDevice adding maualy
+// Test AudioDevice adding manualy
 void MainWindow::addAudioDeviceButtonClicked()
 {
-    ui->audioDeviceBox->insertItem( ui->audioDeviceBox->count(), ui->audioDeviceEdit->text() );
+    ui->audioDeviceBox->insertItem(0 /*ui->audioDeviceBox->count()*/, ui->audioDeviceEdit->text() );
+    ui->audioDeviceBox->update();
 }
 
 /// !brief Get ffmpeg installed path including exe/bin
@@ -706,6 +707,8 @@ void MainWindow::checkUpdate()
 
 void MainWindow::setManualAudioEditVisible(bool visible)
 {
+    ui->frame->setEnabled(visible);
+    ui->labelaudio->setEnabled(visible);
     ui->labelaudio->setVisible(visible);
     ui->audioDeviceEdit->setVisible(visible);
     ui->audioDeviceEdit->setVisible(visible);
@@ -918,14 +921,16 @@ void MainWindow::readSettings()
 #endif
 
     // If no audio device found automaticly
-    if(ui->audioDeviceBox->count() < 1)
-        setManualAudioEditVisible(true);
+    //if(ui->audioDeviceBox->count() < 1)
+    //   setManualAudioEditVisible(true);
 
 
     // If already an audiodevice name saved
     QString audioDeviceName = settings.value("audiodevicename", "").toString();
-    if(!audioDeviceName.isEmpty())
+    if(!audioDeviceName.isEmpty()){
         ui->audioDeviceBox->addItem(0, audioDeviceName);
+        ui->audioDeviceEdit->setText( audioDeviceName );
+    }
 
     // Default settings for video format
     ui->videoFormatBox->addItems(QStringList() << "mkv" << "mp4");
@@ -992,7 +997,7 @@ void MainWindow::saveSettings()
     }
 
     if( ui->saveCheckBox->isChecked() ){
-        settings.setValue("audiodevice", ui->audioDeviceEdit->text());
+        settings.setValue("audiodevicename", ui->audioDeviceEdit->text());
     }
 
 }

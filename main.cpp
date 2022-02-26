@@ -2,8 +2,10 @@
 #include <QApplication>
 #include <QIcon>
 #include <QPixmap>
+#include <QStyle>
+#include <QStyleFactory>
 
-
+#ifdef Q_OS_LINUX
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QByteArray localMsg = msg.toLocal8Bit();
@@ -28,11 +30,14 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         break;
     }
 }
+#endif
 
 int main(int argc, char *argv[])
 {
 
+#ifdef Q_OS_LINUX
     qInstallMessageHandler(myMessageOutput);
+#endif
 
     QApplication app(argc, argv);
 
@@ -40,6 +45,8 @@ int main(int argc, char *argv[])
     app.setApplicationVersion("1.1");
     app.setWindowIcon(QIcon(":/FScreenRecorder.ico"));
     app.setDesktopFileName("FScreenRecorder");
+    //app.setStyle("windows"); // Looks old fashion window
+    app.setStyle( QStyleFactory::create("Fusion") );
 
     MainWindow w;
     w.show();
